@@ -117,7 +117,7 @@ const usefulSections = [
         icon: Repeat,
         color: "text-yellow-600 bg-yellow-50",
         title: "Bulky Waste & Reuse",
-        qr: "images/qr/bulky-waste.png",
+        qr: "images/qr/bulky.png",
         items: [
           {
             label: "Book Leeds City Council bulky collection",

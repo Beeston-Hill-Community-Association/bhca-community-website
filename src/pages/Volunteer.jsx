@@ -89,7 +89,7 @@ export default function Volunteer() {
         </div>
       </section>
 
-      <section className="bg-white py-24">
+      <section className="bg-[#faf8ff] py-24">
         <div className="mx-auto max-w-7xl px-6">
           <div className="mb-14 text-center">
             <span className="mb-4 inline-block rounded-full bg-[#faf8ff] px-4 py-2 text-sm font-bold text-[#5e17eb]">
@@ -110,7 +110,7 @@ export default function Volunteer() {
             {quotes.map((item) => (
               <div
                 key={item.name}
-                className="rounded-3xl bg-[#faf8ff] p-8 shadow-sm"
+                className="rounded-3xl bg-white p-8 shadow-sm"
               >
                 <div className="mb-6 text-5xl font-black text-[#ff914d]/30">
                   “
@@ -127,7 +127,7 @@ export default function Volunteer() {
         </div>
       </section>
 
-      <section className="bg-[#faf8ff] py-24">
+      <section className="bg-white py-24">
         <div className="mx-auto max-w-5xl px-6 text-center">
           <h2 className="mb-5 text-4xl font-black text-[#171717]">
             Ready to get involved?

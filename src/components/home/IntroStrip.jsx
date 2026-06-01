@@ -2,7 +2,7 @@ const introItems = [
   {
     label: "Community",
     title: "Resident-led",
-    text: "Supporting local people, activities and projects across Beeston Hill.",
+    text: "Supporting local people, activities and projects across the Beeston Hill area.",
   },
   {
     label: "Events",

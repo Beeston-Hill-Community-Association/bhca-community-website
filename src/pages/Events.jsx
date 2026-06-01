@@ -1,25 +1,53 @@
+import { useEffect, useState } from "react";
 import FeaturedEvent from "../components/events/FeaturedEvent";
 import EventCard from "../components/events/EventCard";
 import LocalEventCard from "../components/events/LocalEventCard";
 import Button from "../components/ui/Button";
-import { events } from "../data/eventsData";
-
-const featuredEvent = events.find(
-  (event) => event.featured && event.type === "BHCA"
-);
-
-const bhcaEvents = events.filter(
-  (event) => event.type === "BHCA" && !event.featured
-);
-
-const localEvents = events.filter(
-  (event) => event.type === "Local"
-);
+import { supabase } from "../lib/supabaseClient";
 
 export default function Events() {
+  const [bhcaEvents, setBhcaEvents] = useState([]);
+  const [localEvents, setLocalEvents] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const today = new Date().toISOString().split("T")[0];
+
+  useEffect(() => {
+    async function fetchEvents() {
+      const [bhcaResult, localResult] = await Promise.all([
+        supabase.from("events").select("*").order("date", { ascending: true }),
+        supabase
+          .from("local_events")
+          .select("*")
+          .eq("status", "published")
+          .order("created_at", { ascending: false }),
+      ]);
+
+      if (!bhcaResult.error) setBhcaEvents(bhcaResult.data || []);
+      if (!localResult.error) setLocalEvents(localResult.data || []);
+
+      setLoading(false);
+    }
+
+    fetchEvents();
+  }, []);
+
+  const upcomingBhcaEvents = bhcaEvents.filter((event) => event.date >= today);
+  const previousBhcaEvents = bhcaEvents
+    .filter((event) => event.date < today)
+    .sort((a, b) => new Date(b.date) - new Date(a.date))
+    .slice(0, 3);
+
+  const featuredEvent =
+    upcomingBhcaEvents.find((event) => event.event_type === "featured") ||
+    upcomingBhcaEvents[0];
+
+  const otherUpcomingBhcaEvents = upcomingBhcaEvents.filter(
+    (event) => event.id !== featuredEvent?.id
+  );
+
   return (
     <div>
-      {/* HERO */}
       <section className="bg-[#5e17eb] py-24 text-white">
         <div className="mx-auto max-w-7xl px-6">
           <span className="mb-4 inline-block rounded-full bg-white/10 px-4 py-2 text-sm font-bold backdrop-blur">
@@ -37,72 +65,138 @@ export default function Events() {
         </div>
       </section>
 
-      {/* FEATURED EVENT */}
-      <section className="bg-white py-24">
-        <div className="mx-auto max-w-7xl px-6">
+      {loading ? (
+        <section className="bg-white py-24">
+          <div className="mx-auto max-w-7xl px-6">
+            <p className="text-gray-600">Loading events...</p>
+          </div>
+        </section>
+      ) : (
+        <>
           {featuredEvent && (
-            <FeaturedEvent event={featuredEvent} />
+            <section className="bg-white py-24">
+              <div className="mx-auto max-w-7xl px-6">
+                <FeaturedEvent event={featuredEvent} />
+              </div>
+            </section>
           )}
-        </div>
-      </section>
 
-      {/* BHCA EVENTS */}
-      <section className="bg-[#faf8ff] py-24">
-        <div className="mx-auto max-w-7xl px-6">
-          <div className="mb-14">
-            <span className="mb-4 inline-block rounded-full bg-white px-4 py-2 text-sm font-bold text-[#5e17eb] shadow-sm">
-              BHCA events
-            </span>
+          <section className="bg-[#faf8ff] py-24">
+            <div className="mx-auto max-w-7xl px-6">
+              <div className="mb-14">
+                <span className="mb-4 inline-block rounded-full bg-white px-4 py-2 text-sm font-bold text-[#5e17eb] shadow-sm">
+                  BHCA events
+                </span>
 
-            <h2 className="text-4xl font-black text-[#171717]">
-              Upcoming BHCA events
+                <h2 className="text-4xl font-black text-[#171717]">
+                  Upcoming BHCA events
+                </h2>
+              </div>
+
+              {otherUpcomingBhcaEvents.length === 0 ? (
+                <div className="rounded-3xl bg-white p-8 text-gray-600">
+                  No additional BHCA events are listed yet.
+                </div>
+              ) : (
+                <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+                  {otherUpcomingBhcaEvents.map((event) => (
+                    <EventCard key={event.id} event={event} />
+                  ))}
+                </div>
+              )}
+            </div>
+          </section>
+
+          <section className="bg-white py-24">
+            <div className="mx-auto max-w-7xl px-6">
+              <div className="mb-14 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+                <div>
+                  <span className="mb-4 inline-block rounded-full bg-orange-100 px-4 py-2 text-sm font-bold text-[#ff914d]">
+                    Local activities
+                  </span>
+
+                  <h2 className="mb-4 text-4xl font-black text-[#171717]">
+                    Other local events
+                  </h2>
+
+                  <p className="max-w-2xl text-lg leading-relaxed text-gray-600">
+                    Events and activities from local groups, organisations and
+                    partners working in and around Beeston Hill.
+                  </p>
+                </div>
+
+                <Button to="/submit-event" variant="outline">
+                  Submit a Local Event
+                </Button>
+              </div>
+
+              {localEvents.length === 0 ? (
+                <div className="rounded-3xl bg-[#faf8ff] p-8 text-gray-600">
+                  No local events are listed yet.
+                </div>
+              ) : (
+                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                  {localEvents.map((event) => (
+                    <LocalEventCard key={event.id} event={event} />
+                  ))}
+                </div>
+              )}
+            </div>
+          </section>
+
+          {previousBhcaEvents.length > 0 && (
+            <section className="bg-[#faf8ff] py-24">
+              <div className="mx-auto max-w-7xl px-6">
+                <div className="mb-14 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+                  <div>
+                    <span className="mb-4 inline-block rounded-full bg-white px-4 py-2 text-sm font-bold text-gray-600 shadow-sm">
+                      Previous events
+                    </span>
+
+                    <h2 className="mb-4 text-4xl font-black text-[#171717]">
+                      Previous BHCA events
+                    </h2>
+
+                    <p className="max-w-2xl text-lg leading-relaxed text-gray-600">
+                      A look back at community events and activities delivered by
+                      BHCA.
+                    </p>
+                  </div>
+
+                  <Button to="/previous-events" variant="outline">
+                    View all previous events
+                  </Button>
+                </div>
+
+                <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+                  {previousBhcaEvents.map((event) => (
+                    <EventCard key={event.id} event={event} />
+                  ))}
+                </div>
+              </div>
+            </section>
+          )}
+        </>
+      )}
+
+      <section className="bg-[#faf8ff] py-20">
+        <div className="mx-auto max-w-5xl px-6">
+          <div className="rounded-[2rem] bg-white p-10 text-center shadow-sm">
+            <h2 className="mb-5 text-4xl font-black text-[#171717]">
+              Want to help at a BHCA event?
             </h2>
-          </div>
 
-          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-            {bhcaEvents.map((event) => (
-              <EventCard key={event.id} event={event} />
-            ))}
-          </div>
-        </div>
-      </section>
+            <p className="mx-auto mb-8 max-w-2xl text-lg text-gray-600">
+              We’re always looking for local volunteers to help with events,
+              activities and community projects.
+            </p>
 
-      {/* LOCAL EVENTS */}
-      <section className="bg-white py-24">
-        <div className="mx-auto max-w-7xl px-6">
-          <div className="mb-14">
-            <span className="mb-4 inline-block rounded-full bg-orange-100 px-4 py-2 text-sm font-bold text-[#ff914d]">
-              Local activities
-            </span>
-
-            <h2 className="text-4xl font-black text-[#171717]">
-              Other local events
-            </h2>
-          </div>
-
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {localEvents.map((event) => (
-              <LocalEventCard key={event.id} event={event} />
-            ))}
+            <Button href="https://forms.gle/HdPxKtQfXRHJ3AH17" variant="orange">
+              Volunteer with us
+            </Button>
           </div>
         </div>
       </section>
-      <section className="bg-[#5e17eb] py-20 text-white">
-  <div className="mx-auto max-w-5xl px-6 text-center">
-    <h2 className="mb-5 text-4xl font-black">
-      Want to help at a BHCA event?
-    </h2>
-
-    <p className="mx-auto mb-8 max-w-2xl text-lg text-white/80">
-      We’re always looking for local volunteers to help with events, activities
-      and community projects.
-    </p>
-
-    <Button href="https://forms.gle/HdPxKtQfXRHJ3AH17" variant="orange">
-      Volunteer with us
-    </Button>
-  </div>
-</section>
     </div>
   );
 }

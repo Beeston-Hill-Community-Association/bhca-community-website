@@ -1,11 +1,45 @@
+import { useEffect, useState } from "react";
 import Button from "../ui/Button";
-import { galleryImages } from "../../data/galleryData";
+import { supabase } from "../../lib/supabaseClient";
 
-const featuredGalleryImages = galleryImages.filter((image) => image.featured);
+import Lightbox from "yet-another-react-lightbox";
+import "yet-another-react-lightbox/styles.css";
 
 export default function GallerySection() {
+  const [images, setImages] = useState([]);
+  const [index, setIndex] = useState(-1);
+
+  useEffect(() => {
+    async function fetchImages() {
+      const { data, error } = await supabase
+        .from("media")
+        .select("*")
+        .eq("highlighted", true)
+        .order("display_order", { ascending: true })
+        .limit(5);
+
+      if (error) {
+        console.error(error);
+        return;
+      }
+
+      setImages(data || []);
+    }
+
+    fetchImages();
+  }, []);
+
+  if (images.length === 0) {
+    return null;
+  }
+
+  const slides = images.map((image) => ({
+    src: image.url,
+    title: image.name || "BHCA community image",
+  }));
+
   return (
-    <section className="bg-white py-24">
+    <section className="bg-[#faf8ff] py-24">
       <div className="mx-auto max-w-7xl px-6">
         <div className="mb-16 text-center">
           <span className="mb-4 inline-block rounded-full bg-[#faf8ff] px-4 py-2 text-sm font-bold text-[#5e17eb]">
@@ -23,22 +57,21 @@ export default function GallerySection() {
         </div>
 
         <div className="grid gap-5 md:grid-cols-4 md:grid-rows-2">
-          {featuredGalleryImages
-  .sort((a, b) => a.order - b.order)
-  .slice(0, 5)
-  .map((image, index) => (
-            <div
+          {images.map((image, imageIndex) => (
+            <button
+              type="button"
               key={image.id}
-              className={`overflow-hidden rounded-[2rem] ${
-                index === 0 ? "md:col-span-2 md:row-span-2" : ""
+              onClick={() => setIndex(imageIndex)}
+              className={`group overflow-hidden rounded-[2rem] text-left ${
+                imageIndex === 0 ? "md:col-span-2 md:row-span-2" : ""
               }`}
             >
               <img
-                src={image.src}
-                alt={image.alt}
-                className="h-full w-full object-cover transition duration-500 hover:scale-105"
+                src={image.url}
+                alt={image.name || "BHCA community image"}
+                className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
               />
-            </div>
+            </button>
           ))}
         </div>
 
@@ -46,6 +79,13 @@ export default function GallerySection() {
           <Button to="/gallery">View full gallery</Button>
         </div>
       </div>
+
+      <Lightbox
+        open={index >= 0}
+        close={() => setIndex(-1)}
+        index={index}
+        slides={slides}
+      />
     </section>
   );
 }

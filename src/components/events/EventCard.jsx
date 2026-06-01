@@ -3,9 +3,9 @@ import Button from "../ui/Button";
 export default function EventCard({ event }) {
   return (
     <article className="overflow-hidden rounded-3xl bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-xl">
-      {event.image && (
+      {event.image_url && (
         <img
-          src={event.image}
+          src={event.image_url}
           alt={event.title}
           className="h-56 w-full object-cover"
         />
@@ -18,7 +18,7 @@ export default function EventCard({ event }) {
           </span>
 
           <span className="text-sm font-semibold text-gray-500">
-            {event.date}
+            {event.display_date || event.date}
           </span>
         </div>
 
@@ -26,9 +26,9 @@ export default function EventCard({ event }) {
           {event.title}
         </h3>
 
-        {event.organiser && (
+        {event.venue && (
           <p className="mb-4 text-sm font-bold text-[#5e17eb]">
-            Organised by {event.organiser}
+            {event.venue}
           </p>
         )}
 
@@ -36,9 +36,11 @@ export default function EventCard({ event }) {
           {event.description}
         </p>
 
-        <div className="mb-6 text-sm font-semibold text-gray-500">
-          {event.location}
-        </div>
+        {event.time_range && (
+          <div className="mb-6 text-sm font-semibold text-gray-500">
+            {event.time_range}
+          </div>
+        )}
 
         <Button to="/events" variant="outline" className="px-5 py-3">
           Find out more

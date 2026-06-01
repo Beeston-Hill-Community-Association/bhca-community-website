@@ -17,7 +17,6 @@ export default function Home() {
       <HeroSection />
       <IntroStrip />
       <AboutSection />
-      <PartnersSection />
       <EventsSection />
       <VolunteerSection />
       <FeaturedNewsSection />
@@ -26,6 +25,7 @@ export default function Home() {
       <UsefulInfoSection/>
       <SupportSection />
       <NewsletterSection />
+      <PartnersSection />
     </>
   );
 }

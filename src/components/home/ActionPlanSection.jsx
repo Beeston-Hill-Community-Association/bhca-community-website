@@ -6,7 +6,7 @@ const otherPriorities = actionPlan.filter((item) => !item.featured).slice(0, 3);
 
 export default function ActionPlanSection() {
   return (
-    <section className="bg-[#faf8ff] py-24">
+    <section className="bg-white py-24">
       <div className="mx-auto max-w-7xl px-6">
         <div className="mb-16 max-w-3xl">
           <span className="mb-4 inline-block rounded-full bg-white px-4 py-2 text-sm font-bold text-[#5e17eb] shadow-sm">
@@ -51,7 +51,7 @@ export default function ActionPlanSection() {
           {otherPriorities.map((item) => (
             <article
               key={item.id}
-              className="rounded-3xl bg-white p-8 shadow-sm transition hover:-translate-y-1 hover:shadow-xl"
+              className="rounded-3xl bg-[#faf8ff] p-8 shadow-sm transition hover:-translate-y-1 hover:shadow-xl"
             >
               <div className="mb-6 text-5xl font-black text-[#ff914d]/30">
                 {item.number}

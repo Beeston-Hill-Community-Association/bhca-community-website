@@ -65,6 +65,12 @@ export default function Footer() {
 >
   Useful Information
 </Link>
+<Link
+  to="/photo-credits"
+  className="transition hover:text-[#ff914d]"
+>
+  Photo Credits
+</Link>
           </div>
         </div>
 

@@ -7,7 +7,7 @@ export default function FeaturedNewsSection() {
   if (!featuredArticle) return null;
 
   return (
-    <section className="bg-white py-24">
+    <section className="bg-[#faf8ff] py-24">
       <div className="mx-auto max-w-7xl px-6">
         <div className="mb-14 text-center">
           <span className="mb-4 inline-block rounded-full bg-[#faf8ff] px-4 py-2 text-sm font-bold text-[#5e17eb]">
@@ -19,7 +19,7 @@ export default function FeaturedNewsSection() {
           </h2>
         </div>
 
-        <div className="overflow-hidden rounded-[2rem] bg-[#faf8ff] shadow-sm md:grid md:grid-cols-2">
+        <div className="overflow-hidden rounded-[2rem] bg-white shadow-sm md:grid md:grid-cols-2">
           {featuredArticle.image && (
             <div className="min-h-[320px]">
               <img

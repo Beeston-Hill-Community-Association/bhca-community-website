@@ -5,6 +5,7 @@ import LocalEventCard from "../components/events/LocalEventCard";
 import Button from "../components/ui/Button";
 import { supabase } from "../lib/supabaseClient";
 
+
 export default function Events() {
   const [bhcaEvents, setBhcaEvents] = useState([]);
   const [localEvents, setLocalEvents] = useState([]);

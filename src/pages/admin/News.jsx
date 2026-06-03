@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import AdminLayout from "../../components/admin/AdminLayout";
 import { supabase } from "../../lib/supabaseClient";
 import R2Uploader from "../../components/admin/R2Uploader";
+import MediaPicker from "../../components/admin/MediaPicker";
 
 export default function News() {
   const [title, setTitle] = useState("");
@@ -168,6 +169,11 @@ export default function News() {
           className="rounded-xl border p-3"
           required
         />
+        <MediaPicker
+  folders={["news", "gallery", "aerial"]}
+  label="Choose existing news image"
+  onSelect={(url) => setImageUrl(url)}
+/>
         <R2Uploader
   folder="news"
   onUpload={async (url) => {

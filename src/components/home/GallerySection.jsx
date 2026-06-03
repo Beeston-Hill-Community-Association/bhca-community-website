@@ -12,11 +12,12 @@ export default function GallerySection() {
   useEffect(() => {
     async function fetchImages() {
       const { data, error } = await supabase
-        .from("media")
-        .select("*")
-        .eq("highlighted", true)
-        .order("display_order", { ascending: true })
-        .limit(5);
+  .from("media")
+  .select("*")
+  .eq("folder", "gallery")
+  .eq("highlighted", true)
+  .order("display_order", { ascending: true })
+  .limit(5);
 
       if (error) {
         console.error(error);

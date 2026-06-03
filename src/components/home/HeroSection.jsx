@@ -1,11 +1,34 @@
+import { useEffect, useState } from "react";
 import Button from "../ui/Button";
+import { supabase } from "../../lib/supabaseClient";
 
 export default function HeroSection() {
+  const [heroImage, setHeroImage] = useState("/images/hero.jpg");
+
+  useEffect(() => {
+    async function loadHero() {
+      const { data, error } = await supabase
+        .from("media")
+        .select("*")
+        .eq("folder", "heroes")
+        .eq("highlighted", true)
+        .order("display_order", { ascending: true })
+        .limit(1)
+        .single();
+
+      if (error || !data) return;
+
+      setHeroImage(data.url);
+    }
+
+    loadHero();
+  }, []);
+
   return (
     <section className="relative overflow-hidden bg-black">
       <div className="absolute inset-0">
         <img
-          src="/images/hero.jpg"
+          src={heroImage}
           alt="Beeston Hill Community"
           className="h-full w-full object-cover object-center opacity-55"
         />
@@ -32,16 +55,18 @@ export default function HeroSection() {
 
           <div className="flex flex-wrap justify-center gap-4">
             <Button to="/events">Upcoming Events</Button>
-            <Button href="https://forms.gle/HdPxKtQfXRHJ3AH17" variant="ghost">
+
+            <Button
+              href="https://forms.gle/HdPxKtQfXRHJ3AH17"
+              variant="ghost"
+            >
               Volunteer With Us
             </Button>
           </div>
         </div>
       </div>
 
-      <div className="absolute bottom-4 right-4 z-20 text-xs text-white/80 md:text-sm">
-        © 2025 Mark Stevenson – John Charles Approach, Leeds
-      </div>
+      
     </section>
   );
 }

@@ -122,40 +122,72 @@ export default function AdminGallery() {
     setImages((prev) => prev.filter((item) => item.id !== image.id));
   }
 
-  async function toggleHighlight(image) {
-    const nextValue = !image.highlighted;
+ async function toggleHighlight(image) {
+  const nextValue = !image.highlighted;
 
-    if (nextValue) {
-      const highlightedCount = images.filter((item) => item.highlighted).length;
+  if (nextValue && image.folder === "gallery") {
+    const highlightedCount = images.filter(
+      (item) => item.folder === "gallery" && item.highlighted
+    ).length;
 
-      if (highlightedCount >= 5) {
-        alert("You can only highlight 5 images at a time.");
-        return;
-      }
-    }
-
-    const updates = {
-      highlighted: nextValue,
-      display_order: nextValue ? image.display_order : null,
-    };
-
-    const { error } = await supabase
-      .from("media")
-      .update(updates)
-      .eq("id", image.id);
-
-    if (error) {
-      console.error(error);
-      alert("Could not update highlighted status.");
+    if (highlightedCount >= 5) {
+      alert("You can only highlight 5 gallery images at a time.");
       return;
     }
-
-    setImages((prev) =>
-      prev.map((item) =>
-        item.id === image.id ? { ...item, ...updates } : item
-      )
-    );
   }
+
+  if (nextValue && image.folder === "heroes") {
+    const otherHero = images.find(
+      (item) =>
+        item.folder === "heroes" &&
+        item.highlighted &&
+        item.id !== image.id
+    );
+
+    if (otherHero) {
+      const confirmReplace = confirm(
+        "Another hero image is already highlighted. Replace it?"
+      );
+
+      if (!confirmReplace) return;
+
+      await supabase
+        .from("media")
+        .update({ highlighted: false })
+        .eq("id", otherHero.id);
+    }
+  }
+
+  const updates = {
+    highlighted: nextValue,
+    display_order: nextValue ? image.display_order : null,
+  };
+
+  const { error } = await supabase
+    .from("media")
+    .update(updates)
+    .eq("id", image.id);
+
+  if (error) {
+    console.error(error);
+    alert("Could not update highlighted status.");
+    return;
+  }
+
+  setImages((prev) =>
+    prev.map((item) => {
+      if (image.folder === "heroes" && item.folder === "heroes" && item.id !== image.id) {
+        return { ...item, highlighted: false };
+      }
+
+      if (item.id === image.id) {
+        return { ...item, ...updates };
+      }
+
+      return item;
+    })
+  );
+}
 
   async function toggleFeatured(image) {
     const nextValue = !image.featured;

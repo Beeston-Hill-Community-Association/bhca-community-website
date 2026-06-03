@@ -2,14 +2,17 @@ import { useEffect, useState } from "react";
 import AdminLayout from "../../components/admin/AdminLayout";
 import { supabase } from "../../lib/supabaseClient";
 import useAdminRole from "../../hooks/useAdminRole";
+import { ADMIN_INVITE_URL } from "../../lib/config";
 
 export default function AdminUsers() {
   const { isSuperAdmin, loadingRole } = useAdminRole();
+
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [newUserId, setNewUserId] = useState("");
-  const [newEmail, setNewEmail] = useState("");
-  const [newRole, setNewRole] = useState("admin");
+
+  const [inviteEmail, setInviteEmail] = useState("");
+  const [inviteRole, setInviteRole] = useState("admin");
+  const [inviting, setInviting] = useState(false);
 
   useEffect(() => {
     if (!loadingRole && isSuperAdmin) {
@@ -35,32 +38,54 @@ export default function AdminUsers() {
     setLoading(false);
   }
 
-  async function addUser(e) {
+  async function inviteUser(e) {
     e.preventDefault();
 
-    if (!newUserId || !newEmail) {
-      alert("Please add the user's auth UUID and email.");
+    if (!inviteEmail) {
+      alert("Please enter an email address.");
       return;
     }
 
-    const { error } = await supabase.from("admin_users").insert([
-      {
-        id: newUserId,
-        email: newEmail,
-        role: newRole,
-      },
-    ]);
+    setInviting(true);
 
-    if (error) {
+    try {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      if (!session) {
+        throw new Error("You must be logged in to invite users.");
+      }
+
+      const response = await fetch(ADMIN_INVITE_URL, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: inviteEmail,
+          role: inviteRole,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.message || "Invite failed.");
+      }
+
+      alert(`Invite sent to ${inviteEmail}`);
+
+      setInviteEmail("");
+      setInviteRole("admin");
+      fetchUsers();
+    } catch (error) {
       console.error(error);
-      alert("Could not add admin user.");
-      return;
+      alert(error.message);
     }
 
-    setNewUserId("");
-    setNewEmail("");
-    setNewRole("admin");
-    fetchUsers();
+    setInviting(false);
   }
 
   async function updateRole(user, role) {
@@ -112,6 +137,7 @@ export default function AdminUsers() {
           <h1 className="mb-2 text-2xl font-black text-[#171717]">
             Access denied
           </h1>
+
           <p className="text-gray-600">
             Only super admins can manage admin users.
           </p>
@@ -127,31 +153,29 @@ export default function AdminUsers() {
       </h1>
 
       <form
-        onSubmit={addUser}
+        onSubmit={inviteUser}
         className="mb-10 grid gap-4 rounded-2xl bg-white p-6 shadow-sm"
       >
         <h2 className="text-xl font-black text-[#171717]">
-          Add existing Supabase user
+          Invite new admin user
         </h2>
 
-        <input
-          value={newUserId}
-          onChange={(e) => setNewUserId(e.target.value)}
-          placeholder="Auth user UUID"
-          className="rounded-xl border p-3"
-        />
+        <p className="text-sm text-gray-500">
+          Send an invite email and assign the user an admin role.
+        </p>
 
         <input
           type="email"
-          value={newEmail}
-          onChange={(e) => setNewEmail(e.target.value)}
+          value={inviteEmail}
+          onChange={(e) => setInviteEmail(e.target.value)}
           placeholder="Email address"
           className="rounded-xl border p-3"
+          required
         />
 
         <select
-          value={newRole}
-          onChange={(e) => setNewRole(e.target.value)}
+          value={inviteRole}
+          onChange={(e) => setInviteRole(e.target.value)}
           className="rounded-xl border p-3"
         >
           <option value="admin">Admin</option>
@@ -160,9 +184,10 @@ export default function AdminUsers() {
 
         <button
           type="submit"
-          className="rounded-full bg-[#5e17eb] px-6 py-3 font-bold text-white"
+          disabled={inviting}
+          className="rounded-full bg-[#5e17eb] px-6 py-3 font-bold text-white disabled:opacity-50"
         >
-          Add admin access
+          {inviting ? "Sending invite..." : "Send invite"}
         </button>
       </form>
 

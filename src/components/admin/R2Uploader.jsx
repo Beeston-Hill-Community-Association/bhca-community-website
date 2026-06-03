@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { supabase } from "../../lib/supabaseClient";
+import { R2_UPLOAD_URL } from "../../lib/config";
 
 export default function R2Uploader({ folder = "gallery", onUpload }) {
   const [uploading, setUploading] = useState(false);
@@ -9,14 +11,24 @@ export default function R2Uploader({ folder = "gallery", onUpload }) {
 
     setUploading(true);
 
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+
+    if (!session) {
+      alert("You must be logged in to upload images.");
+      setUploading(false);
+      return;
+    }
+
     const formData = new FormData();
     formData.append("file", file);
     formData.append("folder", folder);
 
-    const response = await fetch(import.meta.env.VITE_R2_UPLOAD_URL, {
+    const response = await fetch(R2_UPLOAD_URL, {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${import.meta.env.VITE_R2_UPLOAD_SECRET}`,
+        Authorization: `Bearer ${session.access_token}`,
       },
       body: formData,
     });

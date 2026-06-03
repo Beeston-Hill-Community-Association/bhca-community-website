@@ -1,0 +1,206 @@
+import { useEffect, useState } from "react";
+import AdminLayout from "../../components/admin/AdminLayout";
+import { supabase } from "../../lib/supabaseClient";
+import useAdminRole from "../../hooks/useAdminRole";
+
+export default function AdminUsers() {
+  const { isSuperAdmin, loadingRole } = useAdminRole();
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [newUserId, setNewUserId] = useState("");
+  const [newEmail, setNewEmail] = useState("");
+  const [newRole, setNewRole] = useState("admin");
+
+  useEffect(() => {
+    if (!loadingRole && isSuperAdmin) {
+      fetchUsers();
+    }
+  }, [loadingRole, isSuperAdmin]);
+
+  async function fetchUsers() {
+    setLoading(true);
+
+    const { data, error } = await supabase
+      .from("admin_users")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.error(error);
+      alert("Could not load admin users.");
+    } else {
+      setUsers(data || []);
+    }
+
+    setLoading(false);
+  }
+
+  async function addUser(e) {
+    e.preventDefault();
+
+    if (!newUserId || !newEmail) {
+      alert("Please add the user's auth UUID and email.");
+      return;
+    }
+
+    const { error } = await supabase.from("admin_users").insert([
+      {
+        id: newUserId,
+        email: newEmail,
+        role: newRole,
+      },
+    ]);
+
+    if (error) {
+      console.error(error);
+      alert("Could not add admin user.");
+      return;
+    }
+
+    setNewUserId("");
+    setNewEmail("");
+    setNewRole("admin");
+    fetchUsers();
+  }
+
+  async function updateRole(user, role) {
+    const { error } = await supabase
+      .from("admin_users")
+      .update({ role })
+      .eq("id", user.id);
+
+    if (error) {
+      console.error(error);
+      alert("Could not update role.");
+      return;
+    }
+
+    setUsers((prev) =>
+      prev.map((item) => (item.id === user.id ? { ...item, role } : item))
+    );
+  }
+
+  async function removeUser(user) {
+    if (!confirm(`Remove admin access for ${user.email}?`)) return;
+
+    const { error } = await supabase
+      .from("admin_users")
+      .delete()
+      .eq("id", user.id);
+
+    if (error) {
+      console.error(error);
+      alert("Could not remove admin user.");
+      return;
+    }
+
+    setUsers((prev) => prev.filter((item) => item.id !== user.id));
+  }
+
+  if (loadingRole) {
+    return (
+      <AdminLayout>
+        <p>Checking permissions...</p>
+      </AdminLayout>
+    );
+  }
+
+  if (!isSuperAdmin) {
+    return (
+      <AdminLayout>
+        <div className="rounded-2xl bg-white p-8 shadow-sm">
+          <h1 className="mb-2 text-2xl font-black text-[#171717]">
+            Access denied
+          </h1>
+          <p className="text-gray-600">
+            Only super admins can manage admin users.
+          </p>
+        </div>
+      </AdminLayout>
+    );
+  }
+
+  return (
+    <AdminLayout>
+      <h1 className="mb-8 text-3xl font-black text-[#171717]">
+        Admin Users
+      </h1>
+
+      <form
+        onSubmit={addUser}
+        className="mb-10 grid gap-4 rounded-2xl bg-white p-6 shadow-sm"
+      >
+        <h2 className="text-xl font-black text-[#171717]">
+          Add existing Supabase user
+        </h2>
+
+        <input
+          value={newUserId}
+          onChange={(e) => setNewUserId(e.target.value)}
+          placeholder="Auth user UUID"
+          className="rounded-xl border p-3"
+        />
+
+        <input
+          type="email"
+          value={newEmail}
+          onChange={(e) => setNewEmail(e.target.value)}
+          placeholder="Email address"
+          className="rounded-xl border p-3"
+        />
+
+        <select
+          value={newRole}
+          onChange={(e) => setNewRole(e.target.value)}
+          className="rounded-xl border p-3"
+        >
+          <option value="admin">Admin</option>
+          <option value="super_admin">Super admin</option>
+        </select>
+
+        <button
+          type="submit"
+          className="rounded-full bg-[#5e17eb] px-6 py-3 font-bold text-white"
+        >
+          Add admin access
+        </button>
+      </form>
+
+      {loading ? (
+        <p>Loading admin users...</p>
+      ) : (
+        <div className="grid gap-4">
+          {users.map((user) => (
+            <div
+              key={user.id}
+              className="flex flex-col justify-between gap-4 rounded-2xl bg-white p-5 shadow-sm md:flex-row md:items-center"
+            >
+              <div>
+                <h3 className="font-black text-[#171717]">{user.email}</h3>
+                <p className="text-xs text-gray-500">{user.id}</p>
+              </div>
+
+              <div className="flex flex-wrap gap-3">
+                <select
+                  value={user.role}
+                  onChange={(e) => updateRole(user, e.target.value)}
+                  className="rounded-xl border px-3 py-2"
+                >
+                  <option value="admin">Admin</option>
+                  <option value="super_admin">Super admin</option>
+                </select>
+
+                <button
+                  onClick={() => removeUser(user)}
+                  className="rounded bg-red-500 px-4 py-2 text-sm font-bold text-white"
+                >
+                  Remove access
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </AdminLayout>
+  );
+}

@@ -21,8 +21,8 @@ import AdminNews from "./pages/admin/News";
 import AdminActionPlan from "./pages/admin/ActionPlan";
 import AdminGallery from "./pages/admin/Gallery";
 import PreviousEvents from "./pages/PreviousEvents";
-import ForgotPassword from "./pages/admin/forgot-password";
-import ResetPassword from "./pages/admin/reset-password";
+import ForgotPassword from "./pages/admin/ForgotPassword";
+import ResetPassword from "./pages/admin/ResetPassword";
 import AdminUsers from "./pages/admin/Users";
 
 export default function App() {

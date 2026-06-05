@@ -15,10 +15,10 @@ const navLinks = [
 export default function AdminNavbar() {
   const navigate = useNavigate();
   const { pathname } = useLocation();
-  const { isSuperAdmin } = useAdminRole();
+ const { role, isSuperAdmin } = useAdminRole();
 
   const visibleLinks = isSuperAdmin
-    ? [...navLinks, { label: "Users", path: "/admin/users" }]
+    ? [...navLinks, { label: "Users", path: "/admin/Users" }]
     : navLinks;
 
   const handleLogout = async () => {
@@ -49,6 +49,11 @@ export default function AdminNavbar() {
               {label}
             </button>
           ))}
+          {role && (
+  <span className="rounded-full bg-white/10 px-3 py-1 text-xs font-bold uppercase tracking-wide text-white">
+    {role === "super_admin" ? "Super admin" : "Admin"}
+  </span>
+)}
 
           <button
             type="button"

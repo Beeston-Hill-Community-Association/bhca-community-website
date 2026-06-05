@@ -26,7 +26,7 @@ export default function AboutSection() {
 </p>
 
 <p className="text-lg leading-relaxed text-gray-600">
-  Join us for events, sign up for updates or volunteer with BHCA — every
+  Join us for events, sign up for updates or volunteer with BHCA every
   contribution helps build a stronger community.
 </p>
         </div>

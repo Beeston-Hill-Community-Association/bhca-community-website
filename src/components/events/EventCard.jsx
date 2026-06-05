@@ -1,15 +1,27 @@
-import Button from "../ui/Button";
-
 export default function EventCard({ event }) {
   return (
     <article className="overflow-hidden rounded-3xl bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-xl">
-      {event.image_url && (
-        <img
-          src={event.image_url}
-          alt={event.title}
-          className="h-56 w-full object-cover"
-        />
-      )}
+      {event.image_url &&
+        (event.image_url.toLowerCase().includes(".png") ? (
+          <a
+            href={event.image_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="block"
+          >
+            <img
+              src={event.image_url}
+              alt={event.title}
+              className="h-56 w-full object-cover object-top transition hover:opacity-90"
+            />
+          </a>
+        ) : (
+          <img
+            src={event.image_url}
+            alt={event.title}
+            className="h-56 w-full object-cover object-top"
+          />
+        ))}
 
       <div className="p-7">
         <div className="mb-5 flex items-center justify-between gap-4">
@@ -37,14 +49,10 @@ export default function EventCard({ event }) {
         </p>
 
         {event.time_range && (
-          <div className="mb-6 text-sm font-semibold text-gray-500">
+          <div className="text-sm font-semibold text-gray-500">
             {event.time_range}
           </div>
         )}
-
-        <Button to="/events" variant="outline" className="px-5 py-3">
-          Find out more
-        </Button>
       </div>
     </article>
   );

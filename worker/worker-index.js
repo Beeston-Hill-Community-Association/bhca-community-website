@@ -6,12 +6,27 @@
 // those specific crawlers and serves correct per-route <title>/description/og:image
 // tags server-side, while every normal visitor (and Googlebot, which does run JS)
 // gets the untouched SPA exactly as before.
+//
+// Static pages use a hardcoded lookup table. Dynamic article pages (/events/:slug,
+// /news/:slug) query Supabase's REST API directly for the live title/description/image.
 
 const SITE_URL = "https://beestonhill.org.uk"; // must match SEO.jsx and your live domain
 const SITE_NAME = "Beeston Hill Community Association";
 const DEFAULT_IMAGE = `${SITE_URL}/images/og-image.jpg`;
 const DEFAULT_DESCRIPTION =
   "Beeston Hill Community Association — events, news, volunteering and local support for residents in Beeston Hill, Leeds.";
+
+// Public anon key — same one already shipped in your browser bundle via
+// src/lib/supabaseClient.js. Protection comes from Supabase Row Level Security
+// policies on each table, not secrecy of this key.
+const SUPABASE_URL = "https://mktwyympnbvvxxvlklwh.supabase.co";
+const SUPABASE_ANON_KEY =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1rdHd5eW1wbmJ2dnh4dmxrbHdoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE4NDY2NzAsImV4cCI6MjA3NzQyMjY3MH0.gXbLfJ7iBn8FWDRtZfbdKwTROwkDQJKsvkyikXTYpHo";
+
+const SUPABASE_HEADERS = {
+  apikey: SUPABASE_ANON_KEY,
+  Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+};
 
 // Crawlers that do NOT execute JavaScript and need server-rendered tags.
 // Googlebot is deliberately excluded — it renders JS and reads the SPA fine.
@@ -28,15 +43,8 @@ const CRAWLER_UA_PATTERNS = [
   /redditbot/i,
 ];
 
-// Static per-route metadata. Keep this in sync with the <SEO title=.../description=.../>
-// props used on each page component — this is the same content, just available
-// server-side for crawlers that can't run the React app.
-//
-// NOTE: /news/:slug and /events/:slug are NOT included here because their titles
-// come from Supabase at runtime. Crawlers hitting those URLs currently fall through
-// to the generic homepage tags below. If you want correct previews for individual
-// shared articles (likely your most-shared content), this needs extending to fetch
-// the article from Supabase inside the Worker — flag if you want that built next.
+// Static per-route metadata for non-dynamic pages. Keep in sync with the
+// <SEO title=.../description=.../> props used on each page component.
 const ROUTE_META = {
   "/": {
     title: SITE_NAME,
@@ -95,6 +103,77 @@ function escapeHtml(str) {
     .replace(/"/g, "&quot;");
 }
 
+function truncate(str, maxLength = 160) {
+  if (!str) return "";
+  const clean = String(str).trim();
+  return clean.length > maxLength ? `${clean.slice(0, maxLength - 1).trim()}…` : clean;
+}
+
+// Fetch a single event by slug from Supabase REST API
+async function fetchEventMeta(slug) {
+  try {
+    const res = await fetch(
+      `${SUPABASE_URL}/rest/v1/events?slug=eq.${encodeURIComponent(
+        slug
+      )}&select=title,description,full_description,image_url&limit=1`,
+      { headers: SUPABASE_HEADERS }
+    );
+    if (!res.ok) return null;
+
+    const rows = await res.json();
+    const event = rows[0];
+    if (!event) return null;
+
+    return {
+      title: `${event.title} | ${SITE_NAME}`,
+      description: truncate(event.description || event.full_description) || DEFAULT_DESCRIPTION,
+      image: event.image_url || DEFAULT_IMAGE,
+    };
+  } catch (err) {
+    console.error("fetchEventMeta error:", err);
+    return null;
+  }
+}
+
+// Fetch a single news article by slug, then resolve its image via the media table
+async function fetchNewsMeta(slug) {
+  try {
+    const res = await fetch(
+      `${SUPABASE_URL}/rest/v1/newsletters?slug=eq.${encodeURIComponent(
+        slug
+      )}&select=title,excerpt,content,image_id&limit=1`,
+      { headers: SUPABASE_HEADERS }
+    );
+    if (!res.ok) return null;
+
+    const rows = await res.json();
+    const article = rows[0];
+    if (!article) return null;
+
+    let image = DEFAULT_IMAGE;
+
+    if (article.image_id) {
+      const mediaRes = await fetch(
+        `${SUPABASE_URL}/rest/v1/media?id=eq.${article.image_id}&select=url&limit=1`,
+        { headers: SUPABASE_HEADERS }
+      );
+      if (mediaRes.ok) {
+        const mediaRows = await mediaRes.json();
+        if (mediaRows[0]?.url) image = mediaRows[0].url;
+      }
+    }
+
+    return {
+      title: `${article.title} | ${SITE_NAME}`,
+      description: truncate(article.excerpt || article.content) || DEFAULT_DESCRIPTION,
+      image,
+    };
+  } catch (err) {
+    console.error("fetchNewsMeta error:", err);
+    return null;
+  }
+}
+
 function injectMeta(html, meta, canonicalUrl) {
   const { title, description, image = DEFAULT_IMAGE } = meta;
   const safeTitle = escapeHtml(title);
@@ -109,7 +188,7 @@ function injectMeta(html, meta, canonicalUrl) {
     <meta property="og:description" content="${safeDescription}">
     <meta property="og:image" content="${image}">
     <meta property="og:url" content="${canonicalUrl}">
-    <meta property="og:type" content="website">
+    <meta property="og:type" content="article">
     <meta property="og:site_name" content="${SITE_NAME}">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="${safeTitle}">
@@ -128,7 +207,19 @@ export default {
 
     if (isCrawler(userAgent) && !isAdmin) {
       const pathname = url.pathname.replace(/\/$/, "") || "/";
-      const meta = ROUTE_META[pathname];
+
+      let meta = ROUTE_META[pathname];
+
+      if (!meta) {
+        const eventMatch = pathname.match(/^\/events\/([^/]+)$/);
+        const newsMatch = pathname.match(/^\/news\/([^/]+)$/);
+
+        if (eventMatch) {
+          meta = await fetchEventMeta(eventMatch[1]);
+        } else if (newsMatch) {
+          meta = await fetchNewsMeta(newsMatch[1]);
+        }
+      }
 
       if (meta) {
         const assetResponse = await env.ASSETS.fetch(request);

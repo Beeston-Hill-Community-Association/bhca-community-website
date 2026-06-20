@@ -248,9 +248,16 @@ async function handleContactForm(request, env) {
     return new Response("Bad request", { status: 400 });
   }
 }
-export default {
+
+    export default {
   async fetch(request, env) {
     const url = new URL(request.url);
+
+    // Contact form API endpoint.
+    if (url.pathname === "/api/contact") {
+      return handleContactForm(request, env);
+    }
+    
 
     // Redirect any legacy/typo .html links (e.g. from an old static site,
     // stale bookmarks, or shared links) to the clean route. React Router

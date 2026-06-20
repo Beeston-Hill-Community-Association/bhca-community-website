@@ -52,15 +52,14 @@ export default function UsefulInformation() {
     setLoading(true);
 
     const { data, error } = await supabase
-      .from("useful_info_categories")
-      .select(`
-        *,
-        useful_info_cards (
-          *,
-          useful_info_links (*)
-        )
-      `)
-      .eq("is_active", true)
+  .from("useful_info_categories")
+  .select(`
+    *,
+    useful_info_cards (
+      *,
+      useful_info_links (*)
+    )
+  `)
       .order("sort_order", { ascending: true })
       .order("sort_order", {
         foreignTable: "useful_info_cards",

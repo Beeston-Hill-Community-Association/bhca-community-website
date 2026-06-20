@@ -252,11 +252,15 @@ async function handleContactForm(request, env) {
     export default {
   async fetch(request, env) {
     const url = new URL(request.url);
+    if (url.pathname === "/api/test") {
+  return new Response("Worker is running");
+}
 
     // Contact form API endpoint.
     if (url.pathname === "/api/contact") {
       return handleContactForm(request, env);
     }
+
     
 
     // Redirect any legacy/typo .html links (e.g. from an old static site,

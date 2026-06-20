@@ -1,34 +1,50 @@
-import { Link, NavLink, useLocation } from "react-router-dom";
+import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
+import { Search } from "lucide-react";
 import Button from "../ui/Button";
 import { useState } from "react";
 
 export default function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+const navigate = useNavigate();
+
+function handleSearchSubmit(e) {
+  e.preventDefault();
+
+  const trimmedQuery = searchQuery.trim();
+
+  if (!trimmedQuery) return;
+
+  navigate(`/search?q=${encodeURIComponent(trimmedQuery)}`);
+  setSearchQuery("");
+  setMobileOpen(false);
+}
 
   const navItems = [
-    { name: "Home", path: "/" },
-    { name: "Events", path: "/events" },
-    { name: "News", path: "/news" },
-    { name: "Action Plan", path: "/action-plan" },
-    { name: "Volunteer", path: "/volunteer" },
-    { name: "Contact", path: "/contact" },
-  ];
+  { name: "Home", path: "/" },
+  { name: "Events", path: "/events" },
+  { name: "News", path: "/news" },
+  { name: "Action Plan", path: "/action-plan" },
+  { name: "Useful Info", path: "/useful-information" },
+  { name: "Contact", path: "/contact" },
+];
 
-  const mobileNavItems = [
-    { name: "Home", path: "/" },
-    { name: "Events", path: "/events" },
-    { name: "News", path: "/news" },
-    { name: "Action Plan", path: "/action-plan" },
-    { name: "Volunteer", path: "/volunteer" },
-    { name: "Useful Information", path: "/useful-information" },
-    { name: "Contact", path: "/contact" },
-  ];
+const mobileNavItems = [
+  { name: "Home", path: "/" },
+  { name: "Events", path: "/events" },
+  { name: "News", path: "/news" },
+  { name: "Action Plan", path: "/action-plan" },
+  { name: "Volunteer", path: "/volunteer" },
+  { name: "Useful Information", path: "/useful-information" },
+  { name: "Contact", path: "/contact" },
+];
+
 
   const location = useLocation();
   const isHomePage = location.pathname === "/";
 
   return (
-    <header className="sticky top-0 z-50 border-b border-black/5 bg-white/90 backdrop-blur">
+    <header className="sticky top-0 z-50 border-b border-black/5 bg-white">
       <div className="mx-auto grid max-w-7xl grid-cols-[1fr_auto_1fr] items-center gap-4 px-6 py-4">
         <div className="flex justify-start">
           {!isHomePage && (
@@ -60,6 +76,7 @@ export default function Header() {
             </NavLink>
           ))}
         </nav>
+        
 
         <div className="hidden items-center justify-end gap-3 md:flex">
           <Button
@@ -93,6 +110,20 @@ export default function Header() {
           </button>
         </div>
       </div>
+      <div className="hidden bg-white px-6 pb-4 md:block">
+  <form onSubmit={handleSearchSubmit} className="mx-auto max-w-7xl">
+  <div className="flex items-center rounded-2xl bg-[#faf8ff] px-5 py-4 shadow-sm">
+    <Search size={18} className="text-[#5e17eb]" />
+
+    <input
+      value={searchQuery}
+      onChange={(e) => setSearchQuery(e.target.value)}
+      placeholder="Search news, events, useful information..."
+      className="ml-3 flex-1 bg-transparent text-sm outline-none placeholder:text-gray-400"
+    />
+  </div>
+</form>
+</div>
 
       {mobileOpen && (
         <div className="border-t border-black/5 bg-white px-6 py-6 md:hidden">
@@ -114,6 +145,18 @@ export default function Header() {
                 {item.name}
               </NavLink>
             ))}
+            <form onSubmit={handleSearchSubmit} className="mt-2">
+  <div className="flex items-center rounded-xl bg-[#faf8ff] px-4 py-3 ring-1 ring-black/5">
+    <Search size={18} className="text-[#5e17eb]" />
+
+    <input
+      value={searchQuery}
+      onChange={(e) => setSearchQuery(e.target.value)}
+      placeholder="Search the site"
+      className="ml-3 flex-1 bg-transparent text-base outline-none placeholder:text-gray-400"
+    />
+  </div>
+</form>
 
             <div className="mt-4 grid gap-3">
               <Button

@@ -3,11 +3,13 @@ import AdminLayout from "../../components/admin/AdminLayout";
 import { supabase } from "../../lib/supabaseClient";
 import R2Uploader from "../../components/admin/R2Uploader";
 import MediaPicker from "../../components/admin/MediaPicker";
+import SEO from "../../components/seo/SEO";
 
 export default function News() {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [excerpt, setExcerpt] = useState("");
+  const [category, setCategory] = useState("BHCA News");
   const [imageId, setImageId] = useState("");
   const [media, setMedia] = useState([]);
   const [articles, setArticles] = useState([]);
@@ -19,20 +21,31 @@ export default function News() {
     loadData();
   }, []);
 
+  function createSlug(text) {
+    return text
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9\s-]/g, "")
+      .replace(/\s+/g, "-")
+      .replace(/-+/g, "-");
+  }
+
   async function loadData() {
     setFetching(true);
 
-    const [{ data: mediaData, error: mediaError }, { data: articleData, error }] =
-      await Promise.all([
-        supabase
-          .from("media")
-          .select("id, name, url")
-          .order("created_at", { ascending: false }),
-        supabase
-          .from("newsletters")
-          .select("*")
-          .order("published_at", { ascending: false }),
-      ]);
+    const [
+      { data: mediaData, error: mediaError },
+      { data: articleData, error },
+    ] = await Promise.all([
+      supabase
+        .from("media")
+        .select("id, name, url")
+        .order("created_at", { ascending: false }),
+      supabase
+        .from("newsletters")
+        .select("*")
+        .order("published_at", { ascending: false }),
+    ]);
 
     if (mediaError) console.error(mediaError);
     if (error) console.error(error);
@@ -50,6 +63,7 @@ export default function News() {
     setTitle(article.title || "");
     setContent(article.content || "");
     setExcerpt(article.excerpt || "");
+    setCategory(article.category || "BHCA News");
     setImageId(article.image_id ? String(article.image_id) : "");
     setEditingId(article.id);
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -59,6 +73,7 @@ export default function News() {
     setTitle("");
     setContent("");
     setExcerpt("");
+    setCategory("BHCA News");
     setImageId("");
     setEditingId(null);
   }
@@ -75,8 +90,10 @@ export default function News() {
 
     const payload = {
       title: title.trim(),
+      slug: createSlug(title),
       content: content.trim(),
       excerpt: excerpt.trim() || null,
+      category: category.trim() || "BHCA News",
       image_id: imageId ? Number(imageId) : null,
     };
 
@@ -125,10 +142,9 @@ export default function News() {
 
   return (
     <AdminLayout>
+      <SEO title="Manage News" noindex />
       <div className="mb-8">
-        <h1 className="mb-2 text-3xl font-black text-[#171717]">
-          News
-        </h1>
+        <h1 className="mb-2 text-3xl font-black text-[#171717]">News</h1>
 
         <p className="text-sm text-gray-500">
           Create, edit and delete news articles.
@@ -161,6 +177,19 @@ export default function News() {
           className="rounded-xl border p-3"
         />
 
+        <select
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+          className="rounded-xl border p-3"
+        >
+          <option value="BHCA News">BHCA News</option>
+          <option value="Community">Community</option>
+          <option value="Youth">Youth</option>
+          <option value="Events">Events</option>
+          <option value="Volunteering">Volunteering</option>
+          <option value="Local Updates">Local Updates</option>
+        </select>
+
         <textarea
           value={content}
           onChange={(e) => setContent(e.target.value)}
@@ -169,37 +198,42 @@ export default function News() {
           className="rounded-xl border p-3"
           required
         />
+
         <MediaPicker
-  folders={["news", "gallery", "aerial"]}
-  label="Choose existing news image"
-  onSelect={(url) => setImageUrl(url)}
-/>
+          folders={["news", "gallery", "aerial"]}
+          label="Choose existing news image"
+          onSelect={(url) => {
+            const picked = media.find((item) => item.url === url);
+            if (picked) setImageId(String(picked.id));
+          }}
+        />
+
         <R2Uploader
-  folder="news"
-  onUpload={async (url) => {
-    const { data, error } = await supabase
-      .from("media")
-      .insert([
-        {
-          name: title || "News image",
-          url,
-          folder: "news",
-          highlighted: false,
-        },
-      ])
-      .select()
-      .single();
+          folder="news"
+          onUpload={async (url) => {
+            const { data, error } = await supabase
+              .from("media")
+              .insert([
+                {
+                  name: title || "News image",
+                  url,
+                  folder: "news",
+                  highlighted: false,
+                },
+              ])
+              .select()
+              .single();
 
-    if (error) {
-      console.error(error);
-      alert("Image uploaded, but could not save to media library.");
-      return;
-    }
+            if (error) {
+              console.error(error);
+              alert("Image uploaded, but could not save to media library.");
+              return;
+            }
 
-    setMedia((prev) => [data, ...prev]);
-    setImageId(String(data.id));
-  }}
-/>
+            setMedia((prev) => [data, ...prev]);
+            setImageId(String(data.id));
+          }}
+        />
 
         <select
           value={imageId}
@@ -231,8 +265,8 @@ export default function News() {
             {loading
               ? "Saving..."
               : editingId
-              ? "Update article"
-              : "Publish article"}
+                ? "Update article"
+                : "Publish article"}
           </button>
 
           {editingId && (
@@ -276,13 +310,25 @@ export default function News() {
                     />
                   )}
 
+                  <p className="mb-2 text-xs font-bold uppercase tracking-wide text-[#ff914d]">
+                    {article.category || "BHCA News"}
+                  </p>
+
                   <h3 className="text-lg font-black text-[#171717]">
                     {article.title}
                   </h3>
 
+                  {article.slug && (
+                    <p className="mb-2 text-xs text-gray-400">
+                      /news/{article.slug}
+                    </p>
+                  )}
+
                   <p className="mb-3 text-sm text-gray-500">
                     {article.published_at
-                      ? new Date(article.published_at).toLocaleDateString()
+                      ? new Date(article.published_at).toLocaleDateString(
+                          "en-GB"
+                        )
                       : "No publish date"}
                   </p>
 

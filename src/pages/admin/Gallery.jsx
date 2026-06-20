@@ -2,10 +2,13 @@ import { useEffect, useState } from "react";
 import AdminLayout from "../../components/admin/AdminLayout";
 import R2Uploader from "../../components/admin/R2Uploader";
 import { supabase } from "../../lib/supabaseClient";
+import SEO from "../../components/seo/SEO";
 
 const emptyForm = {
   name: "",
   url: "",
+  caption: "",
+  event_name: "",
   highlighted: false,
   featured: false,
   folder: "gallery",
@@ -51,6 +54,8 @@ export default function AdminGallery() {
     setForm({
       name: image.name || "",
       url: image.url || "",
+      caption: image.caption || "",
+      event_name: image.event_name || "",
       highlighted: Boolean(image.highlighted),
       featured: Boolean(image.featured),
       folder: image.folder || "gallery",
@@ -76,6 +81,8 @@ export default function AdminGallery() {
     const payload = {
       name: form.name || "Media image",
       url: form.url,
+      caption: form.caption || null,
+      event_name: form.event_name || null,
       highlighted: form.highlighted,
       featured: form.featured,
       folder: form.folder,
@@ -122,72 +129,76 @@ export default function AdminGallery() {
     setImages((prev) => prev.filter((item) => item.id !== image.id));
   }
 
- async function toggleHighlight(image) {
-  const nextValue = !image.highlighted;
+  async function toggleHighlight(image) {
+    const nextValue = !image.highlighted;
 
-  if (nextValue && image.folder === "gallery") {
-    const highlightedCount = images.filter(
-      (item) => item.folder === "gallery" && item.highlighted
-    ).length;
+    if (nextValue && image.folder === "gallery") {
+      const highlightedCount = images.filter(
+        (item) => item.folder === "gallery" && item.highlighted
+      ).length;
 
-    if (highlightedCount >= 5) {
-      alert("You can only highlight 5 gallery images at a time.");
-      return;
+      if (highlightedCount >= 5) {
+        alert("You can only highlight 5 gallery images at a time.");
+        return;
+      }
     }
-  }
 
-  if (nextValue && image.folder === "heroes") {
-    const otherHero = images.find(
-      (item) =>
-        item.folder === "heroes" &&
-        item.highlighted &&
-        item.id !== image.id
-    );
-
-    if (otherHero) {
-      const confirmReplace = confirm(
-        "Another hero image is already highlighted. Replace it?"
+    if (nextValue && image.folder === "heroes") {
+      const otherHero = images.find(
+        (item) =>
+          item.folder === "heroes" &&
+          item.highlighted &&
+          item.id !== image.id
       );
 
-      if (!confirmReplace) return;
+      if (otherHero) {
+        const confirmReplace = confirm(
+          "Another hero image is already highlighted. Replace it?"
+        );
 
-      await supabase
-        .from("media")
-        .update({ highlighted: false })
-        .eq("id", otherHero.id);
+        if (!confirmReplace) return;
+
+        await supabase
+          .from("media")
+          .update({ highlighted: false })
+          .eq("id", otherHero.id);
+      }
     }
+
+    const updates = {
+      highlighted: nextValue,
+      display_order: nextValue ? image.display_order : null,
+    };
+
+    const { error } = await supabase
+      .from("media")
+      .update(updates)
+      .eq("id", image.id);
+
+    if (error) {
+      console.error(error);
+      alert("Could not update highlighted status.");
+      return;
+    }
+
+    setImages((prev) =>
+      prev.map((item) => {
+        if (
+          image.folder === "heroes" &&
+          item.folder === "heroes" &&
+          item.id !== image.id
+        ) {
+          return { ...item, highlighted: false };
+        }
+
+        if (item.id === image.id) {
+          return { ...item, ...updates };
+        }
+
+        return item;
+      })
+    );
   }
-
-  const updates = {
-    highlighted: nextValue,
-    display_order: nextValue ? image.display_order : null,
-  };
-
-  const { error } = await supabase
-    .from("media")
-    .update(updates)
-    .eq("id", image.id);
-
-  if (error) {
-    console.error(error);
-    alert("Could not update highlighted status.");
-    return;
-  }
-
-  setImages((prev) =>
-    prev.map((item) => {
-      if (image.folder === "heroes" && item.folder === "heroes" && item.id !== image.id) {
-        return { ...item, highlighted: false };
-      }
-
-      if (item.id === image.id) {
-        return { ...item, ...updates };
-      }
-
-      return item;
-    })
-  );
-}
 
   async function toggleFeatured(image) {
     const nextValue = !image.featured;
@@ -267,6 +278,7 @@ export default function AdminGallery() {
 
   return (
     <AdminLayout>
+      <SEO title="Manage Gallery" noindex />
       <div className="mb-8">
         <h1 className="mb-2 text-3xl font-black text-[#171717]">
           Media Library
@@ -323,6 +335,20 @@ export default function AdminGallery() {
           value={form.name}
           onChange={(e) => updateField("name", e.target.value)}
           placeholder="Image name"
+          className="rounded-xl border p-3"
+        />
+
+        <input
+          value={form.caption}
+          onChange={(e) => updateField("caption", e.target.value)}
+          placeholder="Photo caption"
+          className="rounded-xl border p-3"
+        />
+
+        <input
+          value={form.event_name}
+          onChange={(e) => updateField("event_name", e.target.value)}
+          placeholder="Event name, for example Community Picnic July 2026"
           className="rounded-xl border p-3"
         />
 
@@ -414,6 +440,18 @@ export default function AdminGallery() {
                     <p className="mt-1 text-xs font-semibold uppercase tracking-wide text-gray-400">
                       {image.folder || "gallery"}
                     </p>
+
+                    {image.event_name && (
+                      <p className="mt-2 text-sm font-bold text-[#5e17eb]">
+                        {image.event_name}
+                      </p>
+                    )}
+
+                    {image.caption && (
+                      <p className="mt-2 text-sm text-gray-600">
+                        {image.caption}
+                      </p>
+                    )}
 
                     {image.display_order && (
                       <p className="mt-1 text-xs font-bold text-[#ff914d]">

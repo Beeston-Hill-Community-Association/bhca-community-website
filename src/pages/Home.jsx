@@ -10,10 +10,15 @@ import SupportSection from "../components/home/SupportSection";
 import PartnersSection from "../components/home/PartnersSection";
 import UsefulInfoSection from "../components/home/UsefulInfoSection";
 import FeaturedNewsSection from "../components/home/FeaturedNewsSection";
+import SEO from "../components/seo/SEO";
 
 export default function Home() {
   return (
     <>
+    <SEO
+  title="Photo Credits"
+  description="Photo credits and acknowledgements for images used on the Beeston Hill Community Association website."
+/>
       <HeroSection />
       <IntroStrip />
       <AboutSection />

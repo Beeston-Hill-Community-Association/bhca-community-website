@@ -1,8 +1,15 @@
 import Button from "../components/ui/Button";
+import SEO from "../components/seo/SEO";
 
 
 export default function Contact() {
   return (
+    <>
+    <SEO
+  title="Contact"
+  description="Contact Beeston Hill Community Association about events, volunteering, community projects, partnerships and local updates."
+/>
+    
     <div>
       <section className="bg-[#5e17eb] py-24 text-white">
         <div className="mx-auto max-w-7xl px-6">
@@ -104,5 +111,6 @@ export default function Contact() {
         </div>
       </section>
     </div>
+    </>
   );
 }

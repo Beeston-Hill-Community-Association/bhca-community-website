@@ -1,7 +1,14 @@
 import { photoCredits } from "../data/photoCreditsdata";
+import SEO from "../components/seo/SEO";
 
 export default function PhotoCredits() {
   return (
+    <>
+    <SEO
+  title="Photo Credits"
+  description="Photo credits and acknowledgements for images used on the Beeston Hill Community Association website."
+/>
+    
     <div>
       <section className="bg-[#5e17eb] py-24 text-white">
         <div className="mx-auto max-w-7xl px-6">
@@ -135,5 +142,6 @@ export default function PhotoCredits() {
         </div>
       </section>
     </div>
+    </>
   );
 }

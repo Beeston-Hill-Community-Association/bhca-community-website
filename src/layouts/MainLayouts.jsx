@@ -1,6 +1,7 @@
 // src/layouts/MainLayout.jsx
 import Header from "../components/layout/Header";
 import Footer from "../components/layout/Footer";
+import ScrollToTopButton from "../components/ui/ScrollToTopButton";
 
 export default function MainLayout({ children }) {
   return (
@@ -8,6 +9,7 @@ export default function MainLayout({ children }) {
       <Header />
       <main>{children}</main>
       <Footer />
+      <ScrollToTopButton />
     </div>
   );
 }

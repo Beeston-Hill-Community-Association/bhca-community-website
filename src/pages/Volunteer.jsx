@@ -1,4 +1,5 @@
 import Button from "../components/ui/Button";
+import SEO from "../components/seo/SEO";
 
 export default function Volunteer() {
   const volunteerWays = [
@@ -28,6 +29,12 @@ export default function Volunteer() {
   ];
 
   return (
+    <>
+    <SEO
+  title="Volunteer"
+  description="Find out how to volunteer with Beeston Hill Community Association and support local events, activities and projects."
+/>
+    
     <div>
       <section className="bg-[#5e17eb] py-24 text-white">
         <div className="mx-auto max-w-7xl px-6">
@@ -144,5 +151,6 @@ export default function Volunteer() {
         </div>
       </section>
     </div>
+    </>
   );
 }

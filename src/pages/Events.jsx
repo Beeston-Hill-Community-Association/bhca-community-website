@@ -4,6 +4,7 @@ import EventCard from "../components/events/EventCard";
 import LocalEventCard from "../components/events/LocalEventCard";
 import Button from "../components/ui/Button";
 import { supabase } from "../lib/supabaseClient";
+import SEO from "../components/seo/SEO";
 
 
 export default function Events() {
@@ -48,6 +49,12 @@ export default function Events() {
   );
 
   return (
+    <>
+    <SEO
+  title="Events"
+  description="Find BHCA events, local activities, volunteering opportunities and community events across Beeston Hill and nearby areas."
+/>
+    
     <div>
       <section className="bg-[#5e17eb] py-24 text-white">
         <div className="mx-auto max-w-7xl px-6">
@@ -199,5 +206,6 @@ export default function Events() {
         </div>
       </section>
     </div>
+      </>
   );
 }

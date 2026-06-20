@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import Button from "../components/ui/Button";
 import { supabase } from "../lib/supabaseClient";
+import SEO from "../components/seo/SEO";
 
 export default function News() {
   const [articles, setArticles] = useState([]);
@@ -31,6 +32,12 @@ export default function News() {
   }
 
   return (
+    <>
+    <SEO
+  title="News"
+  description="Read the latest news, updates and community stories from Beeston Hill Community Association."
+/>
+    
     <div>
       <section className="bg-[#5e17eb] py-24 text-white">
         <div className="mx-auto max-w-7xl px-6">
@@ -95,12 +102,12 @@ export default function News() {
                       )}
 
                       <Button
-                        to={`/news/${article.id}`}
-                        variant="outline"
-                        className="px-5 py-3"
-                      >
-                        Read more
-                      </Button>
+  to={article.slug ? `/news/${article.slug}` : `/news/${article.id}`}
+  variant="outline"
+  className="px-5 py-3"
+>
+  Read more
+</Button>
                     </div>
                   </article>
                 );
@@ -129,5 +136,6 @@ export default function News() {
         </div>
       </section>
     </div>
+    </>
   );
 }

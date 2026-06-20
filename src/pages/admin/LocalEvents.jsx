@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import AdminLayout from "../../components/admin/AdminLayout";
 import { supabase } from "../../lib/supabaseClient";
 import R2Uploader from "../../components/admin/R2Uploader";
+import SEO from "../../components/seo/SEO";
 
 const emptyForm = {
   title: "",
@@ -201,6 +202,7 @@ export default function LocalEvents() {
 
   return (
     <AdminLayout>
+      <SEO title="Manage Local Events" noindex />
       <div className="mb-8">
         <h1 className="mb-2 text-3xl font-black text-[#171717]">
           Local Events

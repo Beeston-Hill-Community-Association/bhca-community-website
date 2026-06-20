@@ -3,6 +3,7 @@ import AdminLayout from "../../components/admin/AdminLayout";
 import { supabase } from "../../lib/supabaseClient";
 import R2Uploader from "../../components/admin/R2Uploader";
 import MediaPicker from "../../components/admin/MediaPicker";
+import SEO from "../../components/seo/SEO";
 
 export default function Events() {
   const [events, setEvents] = useState([]);
@@ -25,10 +26,20 @@ export default function Events() {
   const [comingSoon, setComingSoon] = useState(false);
   const [featured, setFeatured] = useState(false);
   const [eventType, setEventType] = useState("event");
+  const [category, setCategory] = useState("Community");
 
   useEffect(() => {
     fetchEvents();
   }, []);
+
+  function createSlug(text) {
+    return text
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9\s-]/g, "")
+      .replace(/\s+/g, "-")
+      .replace(/-+/g, "-");
+  }
 
   async function fetchEvents() {
     setLoading(true);
@@ -76,6 +87,7 @@ export default function Events() {
 
     const payload = {
       title,
+      slug: createSlug(title),
       date,
       display_date: displayDate,
       time_range: timeRange,
@@ -89,6 +101,7 @@ export default function Events() {
       rsvp_url: rsvpUrl || null,
       coming_soon: comingSoon,
       event_type: eventType,
+      category,
       featured,
     };
 
@@ -153,6 +166,7 @@ export default function Events() {
     setComingSoon(Boolean(event.coming_soon));
     setFeatured(Boolean(event.featured));
     setEventType(event.event_type || "event");
+    setCategory(event.category || "Community");
 
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
@@ -174,18 +188,19 @@ export default function Events() {
     setComingSoon(false);
     setFeatured(false);
     setEventType("event");
+    setCategory("Community");
   }
 
   return (
     <AdminLayout>
+      <SEO title="Manage Events" noindex />
+
       <div className="mb-8">
         <h1 className="mb-2 text-3xl font-black text-[#171717]">
           BHCA Events
         </h1>
 
-        <p className="text-sm text-gray-500">
-          Loaded {events.length} events
-        </p>
+        <p className="text-sm text-gray-500">Loaded {events.length} events</p>
       </div>
 
       <form
@@ -230,11 +245,12 @@ export default function Events() {
           placeholder="Venue"
           className="rounded-xl border p-3"
         />
+
         <MediaPicker
-  folders={["events", "gallery", "aerial"]}
-  label="Choose existing event image"
-  onSelect={(url) => setImageUrl(url)}
-/>
+          folders={["events", "gallery", "aerial"]}
+          label="Choose existing event image"
+          onSelect={(url) => setImageUrl(url)}
+        />
 
         <R2Uploader folder="events" onUpload={(url) => setImageUrl(url)} />
 
@@ -265,7 +281,7 @@ export default function Events() {
           value={fullDescription}
           onChange={(e) => setFullDescription(e.target.value)}
           placeholder="Full description"
-          rows="5"
+          rows="7"
           className="rounded-xl border p-3"
         />
 
@@ -290,6 +306,24 @@ export default function Events() {
         >
           <option value="event">Event</option>
           <option value="community_meeting">Community meeting</option>
+        </select>
+
+        <select
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+          className="rounded-xl border p-3"
+        >
+          <option value="Community">Community</option>
+          <option value="Youth">Youth</option>
+          <option value="Family">Family</option>
+          <option value="Volunteering">Volunteering</option>
+          <option value="Environment">Environment</option>
+          <option value="Health">Health</option>
+          <option value="Training">Training</option>
+          <option value="Meetings">Meetings</option>
+          <option value="Food">Food</option>
+          <option value="Sports">Sports</option>
+          <option value="Arts & Culture">Arts & Culture</option>
         </select>
 
         <div className="flex flex-wrap gap-5 text-sm">
@@ -329,6 +363,12 @@ export default function Events() {
             Featured event
           </label>
         </div>
+
+        {title && (
+          <p className="text-sm text-gray-500">
+            Event page URL: /events/{createSlug(title)}
+          </p>
+        )}
 
         <div className="flex gap-3">
           <button
@@ -378,6 +418,12 @@ export default function Events() {
                       {event.title}
                     </h3>
 
+                    {event.category && (
+                      <span className="rounded-full bg-[#faf8ff] px-3 py-1 text-xs font-bold text-[#5e17eb]">
+                        {event.category}
+                      </span>
+                    )}
+
                     {event.featured && (
                       <span className="rounded-full bg-[#5e17eb] px-3 py-1 text-xs font-bold text-white">
                         Featured
@@ -390,6 +436,12 @@ export default function Events() {
                       </span>
                     )}
                   </div>
+
+                  {event.slug && (
+                    <p className="text-xs text-gray-400">
+                      /events/{event.slug}
+                    </p>
+                  )}
 
                   <p className="text-sm text-gray-500">
                     {event.display_date} · {event.time_range}

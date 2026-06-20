@@ -1,3 +1,5 @@
+import Button from "../ui/Button";
+
 export default function EventCard({ event }) {
   return (
     <article className="overflow-hidden rounded-3xl bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-xl">
@@ -49,10 +51,17 @@ export default function EventCard({ event }) {
         </p>
 
         {event.time_range && (
-          <div className="text-sm font-semibold text-gray-500">
+          <div className="mb-6 text-sm font-semibold text-gray-500">
             {event.time_range}
           </div>
         )}
+
+        <Button
+          to={event.slug ? `/events/${event.slug}` : "/events"}
+          variant="text"
+        >
+          Find out more →
+        </Button>
       </div>
     </article>
   );

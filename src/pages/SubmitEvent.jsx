@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { supabase } from "../lib/supabaseClient";
+import SEO from "../components/seo/SEO";
 
 const emptyForm = {
   title: "",
@@ -99,6 +100,12 @@ export default function SubmitEvent() {
   }
 
   return (
+    <>
+    <SEO
+  title="Submit a Local Event"
+  description="Submit a local event or activity to be considered for listing on the Beeston Hill Community Association website."
+/>
+    
     <section className="bg-[#faf8ff] py-24">
       <div className="mx-auto max-w-3xl px-6">
         <div className="mb-10 text-center">
@@ -214,5 +221,6 @@ export default function SubmitEvent() {
         </form>
       </div>
     </section>
+    </>
   );
 }

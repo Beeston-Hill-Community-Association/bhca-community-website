@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AdminLayout from "../../components/admin/AdminLayout";
 import { supabase } from "../../lib/supabaseClient";
+import SEO from "../../components/seo/SEO";
 
 function StatCard({ label, value, onClick, tone = "purple" }) {
   const tones = {
@@ -160,6 +161,7 @@ export default function Dashboard() {
   if (loading) {
     return (
       <AdminLayout>
+        <SEO title="Admin Dashboard" noindex />
         <p className="text-gray-600">Loading dashboard...</p>
       </AdminLayout>
     );
@@ -167,6 +169,7 @@ export default function Dashboard() {
 
   return (
     <AdminLayout>
+      <SEO title="Admin Dashboard" noindex />
       <div className="mb-10">
         <span className="mb-4 inline-block rounded-full bg-[#5e17eb]/10 px-4 py-2 text-sm font-black text-[#5e17eb]">
           Admin dashboard

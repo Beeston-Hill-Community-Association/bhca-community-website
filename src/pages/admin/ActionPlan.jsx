@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import AdminLayout from "../../components/admin/AdminLayout";
 import { supabase } from "../../lib/supabaseClient";
+import SEO from "../../components/seo/SEO";
 
 export default function AdminActionPlan() {
   const [sections, setSections] = useState([]);
@@ -156,6 +157,7 @@ export default function AdminActionPlan() {
 
   return (
     <AdminLayout>
+       <SEO title="Manage Action Plan" noindex />
       <div className="mb-8">
         <h1 className="mb-2 text-3xl font-black text-[#171717]">
           Community Action Plan

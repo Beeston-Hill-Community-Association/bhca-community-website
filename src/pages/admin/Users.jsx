@@ -6,10 +6,8 @@ import { ADMIN_INVITE_URL } from "../../lib/config";
 
 export default function AdminUsers() {
   const { isSuperAdmin, loadingRole } = useAdminRole();
-
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
-
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteRole, setInviteRole] = useState("admin");
   const [inviting, setInviting] = useState(false);
@@ -22,7 +20,6 @@ export default function AdminUsers() {
 
   async function fetchUsers() {
     setLoading(true);
-
     const { data, error } = await supabase
       .from("admin_users")
       .select("*")
@@ -34,28 +31,22 @@ export default function AdminUsers() {
     } else {
       setUsers(data || []);
     }
-
     setLoading(false);
   }
 
   async function inviteUser(e) {
     e.preventDefault();
-
     if (!inviteEmail) {
       alert("Please enter an email address.");
       return;
     }
-
     setInviting(true);
-
     try {
       const {
         data: { session },
       } = await supabase.auth.getSession();
 
-      if (!session) {
-        throw new Error("You must be logged in to invite users.");
-      }
+      if (!session) throw new Error("You must be logged in to invite users.");
 
       const response = await fetch(ADMIN_INVITE_URL, {
         method: "POST",
@@ -70,13 +61,9 @@ export default function AdminUsers() {
       });
 
       const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.message || "Invite failed.");
-      }
+      if (!response.ok) throw new Error(result.message || "Invite failed.");
 
       alert(`Invite sent to ${inviteEmail}`);
-
       setInviteEmail("");
       setInviteRole("admin");
       fetchUsers();
@@ -84,7 +71,6 @@ export default function AdminUsers() {
       console.error(error);
       alert(error.message);
     }
-
     setInviting(false);
   }
 
@@ -99,7 +85,6 @@ export default function AdminUsers() {
       alert("Could not update role.");
       return;
     }
-
     setUsers((prev) =>
       prev.map((item) => (item.id === user.id ? { ...item, role } : item))
     );
@@ -108,18 +93,30 @@ export default function AdminUsers() {
   async function removeUser(user) {
     if (!confirm(`Remove admin access for ${user.email}?`)) return;
 
-    const { error } = await supabase
-      .from("admin_users")
-      .delete()
-      .eq("id", user.id);
+    try {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
 
-    if (error) {
+      if (!session) throw new Error("You must be logged in.");
+
+      const response = await fetch(ADMIN_INVITE_URL, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ userId: user.id }),
+      });
+
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.message || "Delete failed.");
+
+      setUsers((prev) => prev.filter((item) => item.id !== user.id));
+    } catch (error) {
       console.error(error);
-      alert("Could not remove admin user.");
-      return;
+      alert(error.message);
     }
-
-    setUsers((prev) => prev.filter((item) => item.id !== user.id));
   }
 
   if (loadingRole) {
@@ -137,7 +134,6 @@ export default function AdminUsers() {
           <h1 className="mb-2 text-2xl font-black text-[#171717]">
             Access denied
           </h1>
-
           <p className="text-gray-600">
             Only super admins can manage admin users.
           </p>
@@ -148,9 +144,7 @@ export default function AdminUsers() {
 
   return (
     <AdminLayout>
-      <h1 className="mb-8 text-3xl font-black text-[#171717]">
-        Admin Users
-      </h1>
+      <h1 className="mb-8 text-3xl font-black text-[#171717]">Admin Users</h1>
 
       <form
         onSubmit={inviteUser}
@@ -159,11 +153,9 @@ export default function AdminUsers() {
         <h2 className="text-xl font-black text-[#171717]">
           Invite new admin user
         </h2>
-
         <p className="text-sm text-gray-500">
           Send an invite email and assign the user an admin role.
         </p>
-
         <input
           type="email"
           value={inviteEmail}
@@ -172,7 +164,6 @@ export default function AdminUsers() {
           className="rounded-xl border p-3"
           required
         />
-
         <select
           value={inviteRole}
           onChange={(e) => setInviteRole(e.target.value)}
@@ -181,7 +172,6 @@ export default function AdminUsers() {
           <option value="admin">Admin</option>
           <option value="super_admin">Super admin</option>
         </select>
-
         <button
           type="submit"
           disabled={inviting}
@@ -204,7 +194,6 @@ export default function AdminUsers() {
                 <h3 className="font-black text-[#171717]">{user.email}</h3>
                 <p className="text-xs text-gray-500">{user.id}</p>
               </div>
-
               <div className="flex flex-wrap gap-3">
                 <select
                   value={user.role}
@@ -214,7 +203,6 @@ export default function AdminUsers() {
                   <option value="admin">Admin</option>
                   <option value="super_admin">Super admin</option>
                 </select>
-
                 <button
                   onClick={() => removeUser(user)}
                   className="rounded bg-red-500 px-4 py-2 text-sm font-bold text-white"

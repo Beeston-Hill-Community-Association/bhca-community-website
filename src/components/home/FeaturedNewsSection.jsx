@@ -1,10 +1,44 @@
+import { useEffect, useState } from "react";
 import Button from "../ui/Button";
-import { news } from "../../data/newsData";
-
-const featuredArticle = news.find((article) => article.featured);
+import { supabase } from "../../lib/supabaseClient";
 
 export default function FeaturedNewsSection() {
-  if (!featuredArticle) return null;
+  const [article, setArticle] = useState(null);
+  const [imageUrl, setImageUrl] = useState("");
+
+  useEffect(() => {
+    loadFeaturedArticle();
+  }, []);
+
+  async function loadFeaturedArticle() {
+    const { data, error } = await supabase
+      .from("newsletters")
+      .select("*")
+      .order("published_at", { ascending: false })
+      .limit(1)
+      .single();
+
+    if (error || !data) {
+      console.error(error);
+      return;
+    }
+
+    setArticle(data);
+
+    if (data.image_id) {
+      const { data: image } = await supabase
+        .from("media")
+        .select("url")
+        .eq("id", data.image_id)
+        .single();
+
+      if (image) {
+        setImageUrl(image.url);
+      }
+    }
+  }
+
+  if (!article) return null;
 
   return (
     <section className="bg-[#faf8ff] py-24">
@@ -20,11 +54,11 @@ export default function FeaturedNewsSection() {
         </div>
 
         <div className="overflow-hidden rounded-[2rem] bg-white shadow-sm md:grid md:grid-cols-2">
-          {featuredArticle.image && (
+          {imageUrl && (
             <div className="min-h-[320px]">
               <img
-                src={featuredArticle.image}
-                alt={featuredArticle.title}
+                src={imageUrl}
+                alt={article.title}
                 className="h-full w-full object-cover"
               />
             </div>
@@ -32,19 +66,24 @@ export default function FeaturedNewsSection() {
 
           <div className="flex flex-col justify-center p-8 md:p-12">
             <div className="mb-4 text-sm font-bold text-[#ff914d]">
-              {featuredArticle.category} • {featuredArticle.date}
+              {article.category || "BHCA News"} •{" "}
+              {article.published_at
+                ? new Date(article.published_at).toLocaleDateString("en-GB")
+                : ""}
             </div>
 
             <h3 className="mb-5 text-3xl font-black text-[#171717] md:text-4xl">
-              {featuredArticle.title}
+              {article.title}
             </h3>
 
-            <p className="mb-8 text-lg leading-relaxed text-gray-600">
-              {featuredArticle.description}
-            </p>
+            {article.excerpt && (
+              <p className="mb-8 text-lg leading-relaxed text-gray-600">
+                {article.excerpt}
+              </p>
+            )}
 
             <div className="flex flex-wrap gap-4">
-              <Button to={`/news/${featuredArticle.slug}`}>
+              <Button to={`/news/${article.slug}`}>
                 Read full story
               </Button>
 

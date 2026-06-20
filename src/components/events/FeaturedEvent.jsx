@@ -42,9 +42,13 @@ export default function FeaturedEvent({ event }) {
         )}
 
         <div className="flex flex-wrap gap-4">
-          <Button to="/events" variant="primary">
-            View event details
-          </Button>
+         
+          <Button
+  to={event.slug ? `/events/${event.slug}` : "/events"}
+  variant="primary"
+>
+  View event details
+</Button>
 
           <Button
             href="https://forms.gle/HdPxKtQfXRHJ3AH17"

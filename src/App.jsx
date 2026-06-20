@@ -12,6 +12,9 @@ import UsefulInformation from "./pages/UsefulInformation";
 import NewsArticle from "./pages/NewsArticle";
 import PhotoCredits from "./pages/PhotoCredits";
 import SubmitEvent from "./pages/SubmitEvent";
+import EventArticle from "./pages/EventArticle";
+import NotFound from "./pages/NotFound";
+import Search from "./pages/Search";
 
 import Login from "./pages/admin/Login";
 import Dashboard from "./pages/admin/Dashboard";
@@ -24,6 +27,11 @@ import PreviousEvents from "./pages/PreviousEvents";
 import ForgotPassword from "./pages/admin/ForgotPassword";
 import ResetPassword from "./pages/admin/ResetPassword";
 import AdminUsers from "./pages/admin/Users";
+import UsefulInfoAdmin from "./pages/admin/UsefulInfoAdmin";
+import SearchLogs from "./pages/admin/SearchLogs";
+
+import TestPage from "./pages/TestPage"
+
 
 export default function App() {
   return (
@@ -47,6 +55,14 @@ export default function App() {
             </MainLayout>
           }
         />
+        <Route
+  path="/events/:slug"
+  element={
+    <MainLayout>
+      <EventArticle />
+    </MainLayout>
+  }
+/>
 
         <Route
           path="/news"
@@ -136,6 +152,16 @@ export default function App() {
     </MainLayout>
   }
 />
+<Route
+  path="/search"
+  element={
+    <MainLayout>
+      <Search />
+    </MainLayout>
+  }
+/>
+
+<Route path="/TestPage" element={<MainLayout><TestPage /></MainLayout>} />
 
         {/* ADMIN */}
         <Route path="/admin/login" element={<Login />} />
@@ -148,6 +174,19 @@ export default function App() {
         <Route path="/admin/forgot-password" element={<ForgotPassword />} />
         <Route path="/admin/users" element={<AdminUsers />} />
 <Route path="/admin/reset-password" element={<ResetPassword />} />
+<Route
+  path="/admin/useful-info"
+  element={<UsefulInfoAdmin />}
+/>
+<Route path="/admin/search-logs" element={<SearchLogs />} />
+<Route
+  path="*"
+  element={
+    <MainLayout>
+      <NotFound />
+    </MainLayout>
+  }
+/>
       </Routes>
     </BrowserRouter>
   );

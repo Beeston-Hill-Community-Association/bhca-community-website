@@ -19,8 +19,8 @@ function formatDate(dateString) {
       : day % 10 === 2 && day !== 12
       ? "nd"
       : day % 10 === 3 && day !== 13
-      ? "rd"
-      : "th";
+        ? "rd"
+        : "th";
 
   const month = date.toLocaleDateString("en-GB", {
     month: "long",
@@ -36,6 +36,18 @@ function formatTime(time) {
 
 function isPng(url) {
   return url?.toLowerCase().includes(".png");
+}
+
+function shuffleArray(array) {
+  const shuffled = [...array];
+
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+
+  return shuffled;
 }
 
 export default function EventsSection() {
@@ -68,9 +80,7 @@ export default function EventsSection() {
         supabase
           .from("local_events")
           .select("*")
-          .eq("status", "published")
-          .order("created_at", { ascending: false })
-          .limit(4),
+          .eq("status", "published"),
       ]);
 
       if (!featuredResult.error && featuredResult.data) {
@@ -85,7 +95,10 @@ export default function EventsSection() {
       }
 
       if (!localResult.error) {
-        setLocalEvents(localResult.data || []);
+        const events = localResult.data || [];
+        const randomEvents = shuffleArray(events).slice(0, 4);
+
+        setLocalEvents(randomEvents);
       }
 
       setLoading(false);
@@ -242,9 +255,12 @@ export default function EventsSection() {
                     </p>
                   )}
 
-                  <Button to="/events" variant="text">
-                    Find out more →
-                  </Button>
+                  <Button
+  to={event.slug ? `/events/${event.slug}` : "/events"}
+  variant="text"
+>
+  Find out more →
+</Button>
                 </div>
               </div>
             ))}
@@ -262,6 +278,10 @@ export default function EventsSection() {
                 <h3 className="text-3xl font-black text-[#171717]">
                   Other things happening locally
                 </h3>
+
+                <p className="mt-3 max-w-2xl text-sm text-gray-500">
+                  Local listings are displayed in a rotating order.
+                </p>
               </div>
 
               <Button to="/events" variant="text">

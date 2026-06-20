@@ -49,33 +49,36 @@ export default function UsefulInformation() {
   }, []);
 
   async function loadUsefulInfo() {
-  setLoading(true);
+    setLoading(true);
 
-  console.log("Useful info page is loading");
-
-  const { data, error } = await supabase
-    .from("useful_info_categories")
-    .select(`
-      *,
-      useful_info_cards (
+    const { data, error } = await supabase
+      .from("useful_info_categories")
+      .select(`
         *,
-        useful_info_links (*)
-      )
-    `)
-    .order("sort_order", { ascending: true });
+        useful_info_cards (
+          *,
+          useful_info_links (*)
+        )
+      `)
+      .order("sort_order", { ascending: true })
+      .order("sort_order", {
+        foreignTable: "useful_info_cards",
+        ascending: true,
+      })
+      .order("sort_order", {
+        foreignTable: "useful_info_cards.useful_info_links",
+        ascending: true,
+      });
 
-  console.log("Useful info data:", data);
-  console.log("Useful info error:", error);
+    if (error) {
+      console.error("Useful info error:", error);
+      setSections([]);
+    } else {
+      setSections(data || []);
+    }
 
-  if (error) {
-    console.error("Useful info error:", error);
-    setSections([]);
-  } else {
-    setSections(data || []);
+    setLoading(false);
   }
-
-  setLoading(false);
-}
 
   const filteredSections = useMemo(() => {
     const visibleSections = sections.filter(

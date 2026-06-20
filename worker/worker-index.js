@@ -202,6 +202,16 @@ function injectMeta(html, meta, canonicalUrl) {
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
+
+    // Redirect any legacy/typo .html links (e.g. from an old static site,
+    // stale bookmarks, or shared links) to the clean route. React Router
+    // has no matching route for these, so without this they silently fall
+    // through to the 404 page.
+    if (url.pathname.endsWith(".html")) {
+      const cleanPath = url.pathname.slice(0, -".html".length) || "/";
+      return Response.redirect(`${url.origin}${cleanPath}${url.search}`, 301);
+    }
+
     const userAgent = request.headers.get("User-Agent") || "";
     const isAdmin = url.pathname.startsWith("/admin");
 

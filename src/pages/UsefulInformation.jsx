@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   AlertTriangle,
   Trash2,
@@ -30,8 +30,18 @@ const iconMap = {
   "heart-handshake": HeartHandshake,
 };
 
+const filters = [
+  "All",
+  "Emergency",
+  "Council",
+  "Waste & Recycling",
+  "Community",
+  "Useful Numbers",
+];
+
 export default function UsefulInformation() {
   const [sections, setSections] = useState([]);
+  const [activeFilter, setActiveFilter] = useState("All");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -39,40 +49,78 @@ export default function UsefulInformation() {
   }, []);
 
   async function loadUsefulInfo() {
-    setLoading(true);
+  setLoading(true);
 
-    const { data, error } = await supabase
-      .from("useful_info_categories")
-      .select(`
+  console.log("Useful info page is loading");
+
+  const { data, error } = await supabase
+    .from("useful_info_categories")
+    .select(`
+      *,
+      useful_info_cards (
         *,
-        useful_info_cards (
-          *,
-          useful_info_links (*)
-        )
-      `)
-      .order("sort_order", { ascending: true })
-      .order("sort_order", {
-        foreignTable: "useful_info_cards",
-        ascending: true,
-      })
-      .order("sort_order", {
-        foreignTable: "useful_info_cards.useful_info_links",
-        ascending: true,
-      });
+        useful_info_links (*)
+      )
+    `)
+    .order("sort_order", { ascending: true });
 
-    if (error) {
-      console.error("Useful info error:", error);
-      setSections([]);
-    } else {
-      setSections(data || []);
-    }
+  console.log("Useful info data:", data);
+  console.log("Useful info error:", error);
 
-    setLoading(false);
+  if (error) {
+    console.error("Useful info error:", error);
+    setSections([]);
+  } else {
+    setSections(data || []);
   }
 
-  const visibleSections = sections.filter(
-    (section) => section.is_active !== false
-  );
+  setLoading(false);
+}
+
+  const filteredSections = useMemo(() => {
+    const visibleSections = sections.filter(
+      (section) => section.is_active !== false
+    );
+
+    if (activeFilter === "All") return visibleSections;
+
+    return visibleSections.filter((section) => {
+      const name = section.name?.toLowerCase() || "";
+
+      if (activeFilter === "Emergency") {
+        return name.includes("emergency");
+      }
+
+      if (activeFilter === "Council") {
+        return (
+          name.includes("council") ||
+          name.includes("local issue") ||
+          section.useful_info_cards?.some((card) =>
+            card.title?.toLowerCase().includes("council")
+          )
+        );
+      }
+
+      if (activeFilter === "Waste & Recycling") {
+        return name.includes("recycling") || name.includes("waste");
+      }
+
+      if (activeFilter === "Community") {
+        return name.includes("community");
+      }
+
+      if (activeFilter === "Useful Numbers") {
+        return (
+          name.includes("useful numbers") ||
+          section.useful_info_cards?.some((card) =>
+            card.useful_info_links?.some((link) => link.link_type === "phone")
+          )
+        );
+      }
+
+      return true;
+    });
+  }, [activeFilter, sections]);
 
   return (
     <>
@@ -99,19 +147,40 @@ export default function UsefulInformation() {
           </div>
         </section>
 
-        <section className="bg-[#faf8ff] py-24">
+        <section className="bg-[#faf8ff] py-10">
+          <div className="mx-auto max-w-7xl px-6">
+            <div className="flex flex-wrap gap-3">
+              {filters.map((filter) => (
+                <button
+                  key={filter}
+                  type="button"
+                  onClick={() => setActiveFilter(filter)}
+                  className={`rounded-full px-5 py-2 text-sm font-bold transition ${
+                    activeFilter === filter
+                      ? "bg-[#5e17eb] text-white"
+                      : "bg-white text-[#171717] hover:bg-[#eee7ff]"
+                  }`}
+                >
+                  {filter}
+                </button>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="bg-[#faf8ff] pb-24">
           <div className="mx-auto max-w-7xl px-6">
             {loading ? (
               <p className="text-lg font-semibold text-gray-600">
                 Loading useful information...
               </p>
-            ) : visibleSections.length === 0 ? (
+            ) : filteredSections.length === 0 ? (
               <p className="text-lg font-semibold text-gray-600">
-                No useful information found.
+                No useful information found for this filter.
               </p>
             ) : (
               <div className="grid gap-16">
-                {visibleSections.map((section) => {
+                {filteredSections.map((section) => {
                   const activeCards = (section.useful_info_cards || []).filter(
                     (card) => card.is_active !== false
                   );

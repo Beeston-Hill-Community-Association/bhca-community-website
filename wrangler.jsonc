@@ -10,5 +10,11 @@
     "not_found_handling": "single-page-application",
     "binding": "ASSETS"
   },
+  "routes": [
+    {
+      "pattern": "beestonhill.org.uk/api/contact",
+      "custom_domain": true
+    }
+  ],
   "compatibility_flags": ["nodejs_compat"]
 }

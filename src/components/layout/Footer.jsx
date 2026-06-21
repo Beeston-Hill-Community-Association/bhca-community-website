@@ -5,72 +5,45 @@ export default function Footer() {
   return (
     <footer className="relative z-10 bg-[#5e17eb] text-white">
       <div className="mx-auto grid max-w-7xl gap-10 px-6 py-14 md:grid-cols-4">
-        <div className="md:col-span-2">
+        <div className="md:col-span-1">
           <Link to="/" className="inline-block">
-  <img
-    src="/logos/TEXT_LOGO.png"
-    alt="Beeston Hill Community Association"
-    className="mb-6 h-20 w-auto transition hover:opacity-90"
-  />
-</Link>
+            <img
+              src="/logos/TEXT_LOGO.png"
+              alt="Beeston Hill Community Association"
+              className="mb-6 h-20 w-auto transition hover:opacity-90"
+            />
+          </Link>
 
-          <p className="max-w-md leading-relaxed text-white/80">
+          <p className="leading-relaxed text-white/80">
             A resident-led community organisation supporting local events,
             volunteering, community action and stronger connections across
             Beeston Hill.
           </p>
         </div>
 
-        <div className="relative z-20">
+        <div>
           <h3 className="mb-4 text-lg font-black">Explore</h3>
 
           <nav className="grid gap-3 text-white/80">
-            <Link to="/events" className="block transition hover:text-[#ff914d]">
+            <Link to="/events" className="transition hover:text-[#ff914d]">
               Events
             </Link>
-
-            <Link to="/news" className="block transition hover:text-[#ff914d]">
+            <Link to="/news" className="transition hover:text-[#ff914d]">
               News
             </Link>
-
-            <Link
-              to="/action-plan"
-              className="block transition hover:text-[#ff914d]"
-            >
+            <Link to="/action-plan" className="transition hover:text-[#ff914d]">
               Action Plan
             </Link>
-
-            <Link
-              to="/volunteer"
-              className="block transition hover:text-[#ff914d]"
-            >
+            <Link to="/volunteer" className="transition hover:text-[#ff914d]">
               Volunteer
             </Link>
-
-            <Link
-              to="/contact"
-              className="block transition hover:text-[#ff914d]"
-            >
-              Contact
-            </Link>
-
-            <Link
-              to="/useful-information"
-              className="block transition hover:text-[#ff914d]"
-            >
+            <Link to="/useful-information" className="transition hover:text-[#ff914d]">
               Useful Information
-            </Link>
-
-            <Link
-              to="/photo-credits"
-              className="block transition hover:text-[#ff914d]"
-            >
-              Photo Credits
             </Link>
           </nav>
         </div>
 
-        <div className="relative z-20">
+        <div>
           <h3 className="mb-4 text-lg font-black">Contact</h3>
 
           <div className="grid gap-3 text-white/80">
@@ -83,13 +56,9 @@ export default function Footer() {
               contact@beestonhill.org.uk
             </a>
 
-            <Button
-              href="https://donorbox.org/embed/beeston-hill-community-association-838411?"
-              variant="orange"
-              className="mt-4 w-fit px-5 py-3 text-sm"
-            >
-              Donate
-            </Button>
+            <Link to="/contact" className="transition hover:text-[#ff914d]">
+              Contact us
+            </Link>
 
             <a
               href="https://www.facebook.com/groups/945725003377339/"
@@ -109,11 +78,46 @@ export default function Footer() {
             </a>
           </div>
         </div>
+
+        <div>
+          <h3 className="mb-4 text-lg font-black">Support & legal</h3>
+
+          <nav className="grid gap-3 text-white/80">
+            <Link to="/privacy-policy" className="transition hover:text-[#ff914d]">
+              Privacy Policy
+            </Link>
+
+            <Link to="/cookie-policy" className="transition hover:text-[#ff914d]">
+              Cookie Policy
+            </Link>
+
+            <Link to="/photo-credits" className="transition hover:text-[#ff914d]">
+              Photo Credits
+            </Link>
+          </nav>
+
+          <Button
+            href="https://donorbox.org/embed/beeston-hill-community-association-838411?"
+            variant="orange"
+            className="mt-6 w-fit px-5 py-3 text-sm"
+          >
+            Donate
+          </Button>
+        </div>
       </div>
 
-      <div className="border-t border-white/20 px-6 py-5 text-center text-sm text-white/60">
-        © {new Date().getFullYear()} Beeston Hill Community Association. All
-        rights reserved.
+      <div className="border-t border-white/20 px-6 py-5">
+        <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 text-center text-sm text-white/60 md:flex-row md:text-left">
+     <p>
+  © {new Date().getFullYear()} Beeston Hill Community Association. All rights reserved.
+</p>
+
+<p className="text-white/40">
+  Website support by J Sandiman.
+</p>
+
+          <p>Beeston Hill, Leeds</p>
+        </div>
       </div>
     </footer>
   );

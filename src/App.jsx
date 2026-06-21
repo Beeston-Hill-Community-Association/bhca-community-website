@@ -15,6 +15,8 @@ import SubmitEvent from "./pages/SubmitEvent";
 import EventArticle from "./pages/EventArticle";
 import NotFound from "./pages/NotFound";
 import Search from "./pages/Search";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import CookiePolicy from "./pages/CookiePolicy";
 
 import Login from "./pages/admin/Login";
 import Dashboard from "./pages/admin/Dashboard";
@@ -157,6 +159,23 @@ export default function App() {
   element={
     <MainLayout>
       <Search />
+    </MainLayout>
+  }
+/>
+<Route
+  path="/privacy-policy"
+  element={
+    <MainLayout>
+      <PrivacyPolicy />
+    </MainLayout>
+  }
+/>
+
+<Route
+  path="/cookie-policy"
+  element={
+    <MainLayout>
+      <CookiePolicy />
     </MainLayout>
   }
 />

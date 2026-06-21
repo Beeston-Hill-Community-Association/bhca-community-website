@@ -252,16 +252,7 @@ async function handleContactForm(request, env) {
     export default {
   async fetch(request, env) {
     const url = new URL(request.url);
-    return new Response(`Worker reached: ${url.pathname}`, {
-  status: 200,
-  headers: { "content-type": "text/plain" },
-});
-    
- if (url.pathname === "/api/contact") {
-  return handleContactForm(request, env);
-}
-
-    
+  
 
     // Redirect any legacy/typo .html links (e.g. from an old static site,
     // stale bookmarks, or shared links) to the clean route. React Router

@@ -31,10 +31,17 @@ export default function ContactForm() {
         }
       );
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(errorText || "Failed to send");
-      }
+  const result = await response.text();
+
+if (!response.ok) {
+  throw new Error(result || "Failed to send");
+}
+
+form.reset();
+setStatus(`Sent. Worker response: ${result}`);
+
+form.reset();
+setStatus(`Sent. Worker response: ${result}`);
 
       form.reset();
       setStatus("Thanks, your message has been sent.");

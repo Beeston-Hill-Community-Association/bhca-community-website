@@ -70,6 +70,7 @@ export default function PrivacyPolicy() {
               <li>Information submitted through contact forms</li>
               <li>Volunteer and newsletter sign-up information</li>
               <li>Information you choose to provide to us</li>
+              <li>Event submissions, including event details, organiser name, contact email and any uploaded flyer or image</li>
             </ul>
 
             <h2>How we use your information</h2>
@@ -100,11 +101,12 @@ export default function PrivacyPolicy() {
               Information may be processed using trusted providers including:
             </p>
 
-            <ul>
-              <li>Cloudflare (website hosting and security)</li>
-              <li>Resend (contact form email delivery)</li>
-              <li>Google Forms (where applicable)</li>
-            </ul>
+           <ul>
+  <li>Cloudflare (website hosting, security and web analytics)</li>
+  <li>Supabase (database and storage for event submissions)</li>
+  <li>Resend (contact form email delivery)</li>
+  <li>Google Forms (where applicable)</li>
+</ul>
 
             <h2>Sharing information</h2>
 

@@ -252,14 +252,17 @@ async function handleContactForm(request, env) {
     export default {
   async fetch(request, env) {
     const url = new URL(request.url);
-    if (url.pathname === "/api/test") {
-  return new Response("Worker is running");
+
+   if (url.pathname === "/api/contact") {
+  return new Response("Method not allowed", { status: 405 });
 }
 
-    // Contact form API endpoint.
-    if (url.pathname === "/api/contact") {
-      return handleContactForm(request, env);
-    }
+if (url.pathname === "/api/test") {
+  return new Response("Worker is running", { status: 200 });
+}
+}
+
+  
 
     
 

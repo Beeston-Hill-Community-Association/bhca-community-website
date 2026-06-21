@@ -20,7 +20,7 @@ export default function ContactForm() {
     };
 
     try {
-      const response = await fetch("/api/contact", {
+      const response = await  fetch("https://bhca-contact-api.noisy-darkness-c395.workers.dev", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -15,9 +15,8 @@ import SEO from "../components/seo/SEO";
 export default function Home() {
   return (
     <>
-    <SEO
-  title="Photo Credits"
-  description="Photo credits and acknowledgements for images used on the Beeston Hill Community Association website."
+  <SEO
+  description="Beeston Hill Community Association supports residents through community events, volunteering opportunities, local news, neighbourhood projects and practical support across Beeston Hill, Leeds."
 />
       <HeroSection />
       <IntroStrip />

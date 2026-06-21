@@ -20,22 +20,26 @@ export default function ContactForm() {
     };
 
     try {
-      const response = await  fetch("https://bhca-contact-api.noisy-darkness-c395.workers.dev", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
+      const response = await fetch(
+        "https://bhca-contact-api.noisy-darkness-c395.workers.dev",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        }
+      );
 
       if (!response.ok) {
-        throw new Error("Failed to send");
+        const errorText = await response.text();
+        throw new Error(errorText || "Failed to send");
       }
 
       form.reset();
       setStatus("Thanks, your message has been sent.");
-    } catch {
-      setStatus("Sorry, something went wrong. Please email contact@beestonhill.org.uk instead.");
+    } catch (error) {
+      setStatus(`Error: ${error.message}`);
     } finally {
       setIsSending(false);
     }
@@ -45,9 +49,13 @@ export default function ContactForm() {
     <form onSubmit={handleSubmit} className="grid gap-6">
       <div className="grid gap-6 md:grid-cols-2">
         <div>
-          <label htmlFor="name" className="mb-2 block text-sm font-black text-[#171717]">
+          <label
+            htmlFor="name"
+            className="mb-2 block text-sm font-black text-[#171717]"
+          >
             Your name
           </label>
+
           <input
             id="name"
             name="name"
@@ -59,9 +67,13 @@ export default function ContactForm() {
         </div>
 
         <div>
-          <label htmlFor="email" className="mb-2 block text-sm font-black text-[#171717]">
+          <label
+            htmlFor="email"
+            className="mb-2 block text-sm font-black text-[#171717]"
+          >
             Email address
           </label>
+
           <input
             id="email"
             name="email"
@@ -74,9 +86,13 @@ export default function ContactForm() {
       </div>
 
       <div>
-        <label htmlFor="subject" className="mb-2 block text-sm font-black text-[#171717]">
+        <label
+          htmlFor="subject"
+          className="mb-2 block text-sm font-black text-[#171717]"
+        >
           What is this about?
         </label>
+
         <select
           id="subject"
           name="subject"
@@ -94,9 +110,13 @@ export default function ContactForm() {
       </div>
 
       <div>
-        <label htmlFor="message" className="mb-2 block text-sm font-black text-[#171717]">
+        <label
+          htmlFor="message"
+          className="mb-2 block text-sm font-black text-[#171717]"
+        >
           Message
         </label>
+
         <textarea
           id="message"
           name="message"

@@ -14,17 +14,17 @@ export default function Volunteer() {
   const quotes = [
     {
       quote:
-        "Volunteering helped me meet more people locally and feel more connected to the community.",
-      name: "Sarah",
+        "Bringing people together, regardless of their differences, shows that in our community we are all the same, yet so different, and there is so much to learn from each other. In that, there is beauty.",
+      name: "Shaz A, Committee ",
     },
     {
       quote:
-        "It’s great seeing events bring residents together and create a positive atmosphere.",
-      name: "Ahmed",
+        "There's so much to be proud of our area! BHCA does a fantastic job of not just bringing our community together, but helping it thrive - that's why I love volunteering for them.",
+      name: "Matt R, Volunteer",
     },
     {
-      quote: "Even helping for an hour or two can make a real difference.",
-      name: "Julie",
+      quote: "There is no stereotype; we are all so different but we enjoy seeing so many having a great time. It makes it really worthwhile.",
+      name: "Linda M, Committee",
     },
   ];
 

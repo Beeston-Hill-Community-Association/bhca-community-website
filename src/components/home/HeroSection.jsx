@@ -45,12 +45,11 @@ export default function HeroSection() {
           />
 
           <h1 className="mb-6 text-5xl font-black leading-tight md:text-7xl">
-            Building a stronger community together
+            Working Together for a Stronger Beeston Hill
           </h1>
 
           <p className="mx-auto mb-10 max-w-2xl text-lg text-white/85 md:text-xl">
-            Supporting residents, local activities, events and community-led
-            projects across Beeston Hill.
+            Supporting residents, championing local initiatives, and strengthening community connections across Beeston Hill.
           </p>
 
           <div className="flex flex-wrap justify-center gap-4">

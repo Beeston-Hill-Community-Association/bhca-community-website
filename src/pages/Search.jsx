@@ -4,39 +4,9 @@ import SEO from "../components/seo/SEO";
 import { supabase } from "../lib/supabaseClient";
 
 const searchSynonyms = {
-  family: [
-    "family",
-    "families",
-    "children",
-    "child",
-    "parents",
-    "carers",
-    "kids",
-    "youth",
-    "young people",
-  ],
-  families: [
-    "family",
-    "families",
-    "children",
-    "child",
-    "parents",
-    "carers",
-    "kids",
-    "youth",
-    "young people",
-  ],
-  children: [
-    "children",
-    "child",
-    "kids",
-    "family",
-    "families",
-    "parents",
-    "carers",
-    "youth",
-    "young people",
-  ],
+  family: ["family", "families", "children", "child", "parents", "carers", "kids", "youth", "young people"],
+  families: ["family", "families", "children", "child", "parents", "carers", "kids", "youth", "young people"],
+  children: ["children", "child", "kids", "family", "families", "parents", "carers", "youth", "young people"],
   youth: ["youth", "young people", "teenagers", "teens", "children", "kids"],
   "young people": ["young people", "youth", "teenagers", "teens", "children"],
   food: ["food", "meal", "meals", "lunch", "picnic", "pantry", "vegetarian"],
@@ -50,14 +20,8 @@ const searchSynonyms = {
 };
 
 function getSearchTerms(query) {
-  const baseTerms = query
-    .toLowerCase()
-    .trim()
-    .split(/\s+/)
-    .filter(Boolean);
-
+  const baseTerms = query.toLowerCase().trim().split(/\s+/).filter(Boolean);
   const phrase = query.toLowerCase().trim();
-
   const expanded = new Set([phrase, ...baseTerms]);
 
   baseTerms.forEach((term) => {
@@ -102,6 +66,7 @@ export default function Search() {
   const initialQuery = searchParams.get("q") || "";
 
   const [query, setQuery] = useState(initialQuery);
+  const [showSuggestions, setShowSuggestions] = useState(false);
   const [data, setData] = useState({
     news: [],
     events: [],
@@ -160,16 +125,9 @@ export default function Search() {
     const output = [];
 
     data.news.forEach((item) => {
-      const image = data.media.find(
-        (mediaItem) => mediaItem.id === item.image_id
-      );
+      const image = data.media.find((mediaItem) => mediaItem.id === item.image_id);
 
-      if (
-        resultMatches(
-          [item.title, item.excerpt, item.content, item.category],
-          searchTerms
-        )
-      ) {
+      if (resultMatches([item.title, item.excerpt, item.content, item.category], searchTerms)) {
         output.push({
           id: `news-${item.id}`,
           type: item.category ? `News • ${item.category}` : "News",
@@ -186,15 +144,7 @@ export default function Search() {
     data.events.forEach((item) => {
       if (
         resultMatches(
-          [
-            item.title,
-            item.description,
-            item.full_description,
-            item.venue,
-            item.display_date,
-            item.category,
-            item.event_type,
-          ],
+          [item.title, item.description, item.full_description, item.venue, item.display_date, item.category, item.event_type],
           searchTerms
         )
       ) {
@@ -214,27 +164,17 @@ export default function Search() {
     data.localEvents.forEach((item) => {
       if (
         resultMatches(
-          [
-            item.title,
-            item.description,
-            item.events_category,
-            item.location,
-            item.source,
-            item.display_date,
-          ],
+          [item.title, item.description, item.events_category, item.location, item.source, item.display_date],
           searchTerms
         )
       ) {
         output.push({
           id: `local-${item.id}`,
-          type: item.events_category
-            ? `Local Event • ${item.events_category}`
-            : "Local Event",
+          type: item.events_category ? `Local Event • ${item.events_category}` : "Local Event",
           title: item.title,
           description: excerpt(item.description, item.location),
           url: "/events",
-          imageUrl:
-            item.flyer_url && !isPdf(item.flyer_url) ? item.flyer_url : null,
+          imageUrl: item.flyer_url && !isPdf(item.flyer_url) ? item.flyer_url : null,
           meta: item.source || "Local organisation",
           sortDate: item.event_date || item.created_at,
         });
@@ -277,16 +217,11 @@ export default function Search() {
     });
 
     data.usefulCards.forEach((card) => {
-      const category = data.usefulCategories.find(
-        (item) => item.id === card.category_id
-      );
+      const category = data.usefulCategories.find((item) => item.id === card.category_id);
 
       if (
         card.is_active !== false &&
-        resultMatches(
-          [card.title, category?.name, category?.description],
-          searchTerms
-        )
+        resultMatches([card.title, category?.name, category?.description], searchTerms)
       ) {
         output.push({
           id: `useful-card-${card.id}`,
@@ -303,21 +238,12 @@ export default function Search() {
 
     data.usefulLinks.forEach((link) => {
       const card = data.usefulCards.find((item) => item.id === link.card_id);
-      const category = data.usefulCategories.find(
-        (item) => item.id === card?.category_id
-      );
+      const category = data.usefulCategories.find((item) => item.id === card?.category_id);
 
       if (
         link.is_active !== false &&
         resultMatches(
-          [
-            link.label,
-            link.url,
-            link.phone_number,
-            link.email_address,
-            card?.title,
-            category?.name,
-          ],
+          [link.label, link.url, link.phone_number, link.email_address, card?.title, category?.name],
           searchTerms
         )
       ) {
@@ -337,22 +263,36 @@ export default function Search() {
     return output.sort((a, b) => dateValue(b.sortDate) - dateValue(a.sortDate));
   }, [cleanQuery, searchTerms, data]);
 
+  const suggestions = results.slice(0, 5);
+
+  async function logSearch(trimmedQuery) {
+    await supabase.from("search_logs").insert([
+      {
+        query: trimmedQuery,
+        results_count: results.length,
+      },
+    ]);
+  }
+
   async function handleSubmit(e) {
-  e.preventDefault();
+    e.preventDefault();
 
-  const trimmedQuery = query.trim();
+    const trimmedQuery = query.trim();
+    if (!trimmedQuery) return;
 
-  if (!trimmedQuery) return;
+    await logSearch(trimmedQuery);
+    setShowSuggestions(false);
+    setSearchParams({ q: trimmedQuery });
+  }
 
-  await supabase.from("search_logs").insert([
-    {
-      query: trimmedQuery,
-      results_count: results.length,
-    },
-  ]);
+  async function handleSeeAll() {
+    const trimmedQuery = query.trim();
+    if (!trimmedQuery) return;
 
-  setSearchParams({ q: trimmedQuery });
-}
+    await logSearch(trimmedQuery);
+    setShowSuggestions(false);
+    setSearchParams({ q: trimmedQuery });
+  }
 
   return (
     <div>
@@ -372,8 +312,7 @@ export default function Search() {
           </h1>
 
           <p className="max-w-3xl text-xl leading-relaxed text-white/80">
-            Find news, events, local activities, gallery photos and useful
-            information.
+            Find news, events, local activities, gallery photos and useful information.
           </p>
         </div>
       </section>
@@ -382,15 +321,80 @@ export default function Search() {
         <div className="mx-auto max-w-5xl px-6">
           <form
             onSubmit={handleSubmit}
-            className="mb-10 flex flex-col gap-4 rounded-[2rem] bg-white p-6 shadow-sm md:flex-row"
+            className="relative mb-10 flex flex-col gap-4 rounded-[2rem] bg-white p-6 shadow-sm md:flex-row"
           >
-            <input
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search for family services, youth, food, volunteering..."
-              className="flex-1 rounded-xl border p-4 text-lg"
-              autoFocus
-            />
+            <div className="relative flex-1">
+              <input
+                value={query}
+                onChange={(e) => {
+                  setQuery(e.target.value);
+                  setShowSuggestions(true);
+                }}
+                onFocus={() => setShowSuggestions(true)}
+                placeholder="Search for family services, youth, food, volunteering..."
+                className="w-full rounded-xl border p-4 text-lg"
+                autoFocus
+              />
+
+              {showSuggestions && cleanQuery.length >= 2 && (
+                <div className="absolute left-0 right-0 top-full z-50 mt-3 overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-xl">
+                  {loading ? (
+                    <div className="p-5 text-sm font-semibold text-gray-500">
+                      Loading suggestions...
+                    </div>
+                  ) : suggestions.length === 0 ? (
+                    <div className="p-5 text-sm font-semibold text-gray-500">
+                      No quick matches found. Try a different search.
+                    </div>
+                  ) : (
+                    <>
+                      <div className="grid">
+                        {suggestions.map((item) => (
+                          <Link
+                            key={item.id}
+                            to={item.url}
+                            onClick={() => setShowSuggestions(false)}
+                            className="flex gap-4 border-b border-gray-100 p-4 transition hover:bg-[#faf8ff]"
+                          >
+                            {item.imageUrl ? (
+                              <img
+                                src={item.imageUrl}
+                                alt={item.title}
+                                className="h-14 w-14 rounded-xl object-cover object-top"
+                              />
+                            ) : (
+                              <div className="h-14 w-14 rounded-xl bg-[#faf8ff]" />
+                            )}
+
+                            <div>
+                              <p className="text-xs font-black uppercase tracking-wide text-[#ff914d]">
+                                {item.type}
+                              </p>
+                              <p className="font-black text-[#171717]">
+                                {item.title}
+                              </p>
+                              {item.description && (
+                                <p className="line-clamp-1 text-sm text-gray-500">
+                                  {item.description}
+                                </p>
+                              )}
+                            </div>
+                          </Link>
+                        ))}
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={handleSeeAll}
+                        className="w-full bg-[#5e17eb] px-5 py-4 text-left text-sm font-black text-white transition hover:bg-[#ff914d]"
+                      >
+                        See all results for “{query.trim()}”
+                      </button>
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
 
             <button
               type="submit"

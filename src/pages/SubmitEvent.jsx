@@ -106,15 +106,30 @@ export default function SubmitEvent() {
 
       const { error } = await supabase.from("local_events").insert([payload]);
 
-      if (error) {
-        console.error(error);
-        setErrorMessage(getFriendlyError(error));
-        return;
-      }
+if (error) {
+  console.error(error);
+  setErrorMessage(getFriendlyError(error));
+  return;
+}
 
-      setForm(emptyForm);
-      setShowRecurrence(false);
-      setSubmitted(true);
+try {
+  await fetch(
+    "https://bhca-contact-api.noisy-darkness-c395.workers.dev/event-submission",
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    }
+  );
+} catch (emailError) {
+  console.error("Event notification email failed:", emailError);
+}
+
+setForm(emptyForm);
+setShowRecurrence(false);
+setSubmitted(true);
     } catch (error) {
       console.error(error);
       setErrorMessage(getFriendlyError(error));

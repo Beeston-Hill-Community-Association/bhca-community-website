@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import Button from "../ui/Button";
 
+
 export default function Footer() {
   return (
     <footer className="relative z-10 bg-[#5e17eb] text-white">
@@ -95,6 +96,7 @@ export default function Footer() {
               Photo Credits
             </Link>
           </nav>
+          
 
           <Button
             href="https://donorbox.org/embed/beeston-hill-community-association-838411?"

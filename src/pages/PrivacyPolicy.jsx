@@ -23,35 +23,36 @@ export default function PrivacyPolicy() {
 
         <section className="py-24">
           <div
-  className="
-    mx-auto
-    max-w-4xl
-    px-6
-    text-gray-700
+            className="
+              mx-auto
+              max-w-4xl
+              px-6
+              text-gray-700
 
-    [&_h2]:mt-10
-    [&_h2]:mb-4
-    [&_h2]:text-3xl
-    [&_h2]:font-black
-    [&_h2]:text-[#171717]
+              [&_h2]:mt-10
+              [&_h2]:mb-4
+              [&_h2]:text-3xl
+              [&_h2]:font-black
+              [&_h2]:text-[#171717]
 
-    [&_h3]:mt-8
-    [&_h3]:mb-3
-    [&_h3]:text-xl
-    [&_h3]:font-black
-    [&_h3]:text-[#171717]
+              [&_h3]:mt-8
+              [&_h3]:mb-3
+              [&_h3]:text-xl
+              [&_h3]:font-black
+              [&_h3]:text-[#171717]
 
-    [&_p]:mb-6
-    [&_p]:leading-relaxed
+              [&_p]:mb-6
+              [&_p]:leading-relaxed
 
-    [&_ul]:mb-6
-    [&_ul]:list-disc
-    [&_ul]:pl-6
+              [&_ul]:mb-6
+              [&_ul]:list-disc
+              [&_ul]:pl-6
 
-    [&_li]:mb-2
-  "
->
+              [&_li]:mb-2
+            "
+          >
             <h2>Who we are</h2>
+
             <p>
               Beeston Hill Community Association (BHCA) is a community
               organisation serving residents of Beeston Hill, Leeds.
@@ -70,7 +71,11 @@ export default function PrivacyPolicy() {
               <li>Information submitted through contact forms</li>
               <li>Volunteer and newsletter sign-up information</li>
               <li>Information you choose to provide to us</li>
-              <li>Event submissions, including event details, organiser name, contact email and any uploaded flyer or image</li>
+              <li>
+                Event submissions, including event details, organiser name,
+                contact email and any uploaded flyer or image
+              </li>
+              <li>Donation-related information provided through Donorbox</li>
             </ul>
 
             <h2>How we use your information</h2>
@@ -79,6 +84,8 @@ export default function PrivacyPolicy() {
               <li>Respond to enquiries</li>
               <li>Provide information about community activities and events</li>
               <li>Manage volunteer applications</li>
+              <li>Review and publish event submissions</li>
+              <li>Process and administer donations</li>
               <li>Send updates where requested</li>
               <li>Improve community services and engagement</li>
             </ul>
@@ -101,19 +108,47 @@ export default function PrivacyPolicy() {
               Information may be processed using trusted providers including:
             </p>
 
-           <ul>
-  <li>Cloudflare (website hosting, security and web analytics)</li>
-  <li>Supabase (database and storage for event submissions)</li>
-  <li>Resend (contact form email delivery)</li>
-  <li>Google Forms (where applicable)</li>
-</ul>
+            <ul>
+              <li>Cloudflare (website hosting, security and web analytics)</li>
+              <li>
+                Supabase (database and storage for website content and event
+                submissions)
+              </li>
+              <li>Resend (contact form email delivery)</li>
+              <li>Google Forms (where applicable)</li>
+              <li>Donorbox (online donation management)</li>
+              <li>Stripe (secure payment processing for donations)</li>
+            </ul>
+
+            <p>
+              Donations made through our website are processed by Donorbox and
+              Stripe. Payment card information is processed securely by Stripe
+              and is not stored by Beeston Hill Community Association.
+            </p>
+
+            <h2>Donations</h2>
+
+            <p>
+              If you choose to make a donation through our website, you will be
+              directed to services provided by Donorbox and Stripe.
+            </p>
+
+            <p>
+              These organisations process personal and payment information in
+              accordance with their own privacy policies and security standards.
+            </p>
+
+            <p>
+              Beeston Hill Community Association does not store full payment card
+              details.
+            </p>
 
             <h2>Sharing information</h2>
 
             <p>
               We do not sell personal information. Information is only shared
-              where necessary to operate services, comply with legal
-              obligations, or protect individuals and the community.
+              where necessary to operate services, comply with legal obligations,
+              process donations, or protect individuals and the community.
             </p>
 
             <h2>Data retention</h2>

@@ -53,72 +53,106 @@ export default function CookiePolicy() {
 >
             <h2>What are cookies?</h2>
 
-            <p>
-              Cookies are small text files stored on your device when you visit
-              a website. They help websites function correctly and provide
-              information about how a website is used.
-            </p>
+<p>
+  Cookies are small text files stored on your device when you visit a website.
+  They help websites function correctly, improve security and provide
+  information about how a website is used.
+</p>
 
-            <h2>Cookies used on this website</h2>
+<h2>Cookies used on this website</h2>
 
-            <h3>Essential cookies</h3>
+<h3>Essential cookies</h3>
 
-            <p>
-              We use cookies and similar technologies that are necessary for the
-              operation, security and performance of this website.
-            </p>
+<p>
+  We use cookies and similar technologies that are necessary for the operation,
+  security and performance of this website.
+</p>
 
-            <p>
-              This may include services provided by Cloudflare to protect and
-              improve the reliability of the website.
-            </p>
+<p>
+  This may include services provided by Cloudflare to help protect the website
+  from malicious activity and ensure reliable delivery of website content.
+</p>
 
-            <h3>Analytics</h3>
+<h3>Website analytics</h3>
 
-            <p>
-              We use Cloudflare Web Analytics to understand how visitors use our
-              website.
-            </p>
+<p>
+  We use Cloudflare Web Analytics to understand how visitors use our website.
+</p>
 
-            <p>
-              Cloudflare Web Analytics is designed to be privacy-friendly and
-              does not use cross-site tracking cookies.
-            </p>
+<p>
+  Cloudflare Web Analytics is designed to be privacy-friendly and does not use
+  cross-site tracking cookies to identify individual visitors.
+</p>
 
-            <p>Information collected may include:</p>
+<p>Information collected may include:</p>
 
-            <ul>
-              <li>Pages visited</li>
-              <li>General location information</li>
-              <li>Browser and device information</li>
-              <li>Referring websites</li>
-            </ul>
+<ul>
+  <li>Pages visited</li>
+  <li>General geographic location information</li>
+  <li>Browser and device information</li>
+  <li>Referring websites</li>
+  <li>Website performance information</li>
+</ul>
 
-            <h2>Managing cookies</h2>
+<h2>Third-party services</h2>
 
-            <p>
-              Most web browsers allow you to control cookies through browser
-              settings. You can block or delete cookies at any time.
-            </p>
+<p>
+  Our website contains links to third-party services and websites. These
+  services may use their own cookies, technologies and privacy practices.
+</p>
 
-            <h2>Third-party services</h2>
+<p>Examples include:</p>
 
-            <p>
-              Links on this website may direct users to third-party services
-              such as Facebook, Google Forms or other external websites.
-            </p>
+<ul>
+  <li>Facebook</li>
+  <li>Google Forms</li>
+  <li>Donorbox</li>
+  <li>Stripe</li>
+</ul>
 
-            <p>
-              These services may use their own cookies and privacy practices.
-            </p>
+<p>
+  Donations made through links on our website are processed by Donorbox and
+  Stripe. These services may use cookies or similar technologies to provide
+  secure donation and payment processing.
+</p>
 
-            <h2>Contact us</h2>
+<p>
+  Beeston Hill Community Association does not receive or store full payment
+  card details.
+</p>
 
-            <p>
-              If you have questions about this Cookie Policy please contact:
-              <br />
-              <strong>contact@beestonhill.org.uk</strong>
-            </p>
+<h2>Managing cookies</h2>
+
+<p>
+  Most web browsers allow you to control cookies through browser settings. You
+  can choose to block or delete cookies at any time.
+</p>
+
+<p>
+  Please note that disabling certain cookies may affect the functionality or
+  security of some websites and services.
+</p>
+
+<h2>Changes to this policy</h2>
+
+<p>
+  We may update this Cookie Policy from time to time to reflect changes to our
+  website, technology or legal obligations.
+</p>
+
+<p>
+  Any updates will be published on this page together with the revised "Last
+  updated" date.
+</p>
+
+<h2>Contact us</h2>
+
+<p>
+  If you have any questions about this Cookie Policy, please contact:
+  <br />
+  <strong>contact@beestonhill.org.uk</strong>
+</p>
+
           </div>
         </section>
       </div>

@@ -56,13 +56,35 @@ export default function EventCard({ event }) {
           </div>
         )}
 
-        <Button
-          to={event.slug ? `/events/${event.slug}` : "/events"}
-          variant="text"
-        >
-          Find out more →
-        </Button>
-      </div>
+        <div className="flex flex-wrap gap-3">
+  {event.stalls_fully_booked && (
+  <div className="mb-6 rounded-2xl border border-red-200 bg-red-50 px-5 py-4">
+    <p className="text-center text-sm font-black text-red-700">
+      🚫 Stall applications for this event are now closed.
+    </p>
+  </div>
+)}
+
+<div className="flex flex-wrap gap-3">
+  <Button
+    to={event.slug ? `/events/${event.slug}` : "/events"}
+    variant="text"
+  >
+    Find out more →
+  </Button>
+
+  {event.has_stall && !event.stalls_fully_booked && (
+    <Button
+      href="https://forms.gle/qH3hgTL8HmRTS1do7"
+      variant="orange"
+      className="px-5 py-3 text-sm"
+    >
+      Book a stall
+    </Button>
+  )}
+</div>
+</div>
+</div>
     </article>
   );
 }

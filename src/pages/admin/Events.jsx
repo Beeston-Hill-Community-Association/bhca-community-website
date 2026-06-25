@@ -22,6 +22,7 @@ export default function Events() {
   const [imageUrl, setImageUrl] = useState("");
 
   const [hasStall, setHasStall] = useState(false);
+  const [stallsFullyBooked, setStallsFullyBooked] = useState(false);
   const [hasRSVP, setHasRSVP] = useState(false);
   const [comingSoon, setComingSoon] = useState(false);
   const [featured, setFeatured] = useState(false);
@@ -97,6 +98,7 @@ export default function Events() {
       venue: venue || null,
       image_url: imageUrl || null,
       has_stall: hasStall,
+      stalls_fully_booked: hasStall ? stallsFullyBooked : false,
       has_rsvp: hasRSVP,
       rsvp_url: rsvpUrl || null,
       coming_soon: comingSoon,
@@ -162,6 +164,7 @@ export default function Events() {
     setRsvpUrl(event.rsvp_url || "");
     setImageUrl(event.image_url || "");
     setHasStall(Boolean(event.has_stall));
+    setStallsFullyBooked(Boolean(event.stalls_fully_booked));
     setHasRSVP(Boolean(event.has_rsvp));
     setComingSoon(Boolean(event.coming_soon));
     setFeatured(Boolean(event.featured));
@@ -184,6 +187,7 @@ export default function Events() {
     setRsvpUrl("");
     setImageUrl("");
     setHasStall(false);
+    setStallsFullyBooked(false);
     setHasRSVP(false);
     setComingSoon(false);
     setFeatured(false);
@@ -331,9 +335,26 @@ export default function Events() {
             <input
               type="checkbox"
               checked={hasStall}
-              onChange={(e) => setHasStall(e.target.checked)}
+              onChange={(e) => {
+                const checked = e.target.checked;
+                setHasStall(checked);
+
+                if (!checked) {
+                  setStallsFullyBooked(false);
+                }
+              }}
             />{" "}
-            Stall
+            Stall applications available
+          </label>
+
+          <label>
+            <input
+              type="checkbox"
+              checked={stallsFullyBooked}
+              onChange={(e) => setStallsFullyBooked(e.target.checked)}
+              disabled={!hasStall}
+            />{" "}
+            Stalls fully booked
           </label>
 
           <label>
@@ -421,6 +442,18 @@ export default function Events() {
                     {event.category && (
                       <span className="rounded-full bg-[#faf8ff] px-3 py-1 text-xs font-bold text-[#5e17eb]">
                         {event.category}
+                      </span>
+                    )}
+
+                    {event.has_stall && (
+                      <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-bold text-green-700">
+                        Stalls
+                      </span>
+                    )}
+
+                    {event.stalls_fully_booked && (
+                      <span className="rounded-full bg-gray-200 px-3 py-1 text-xs font-bold text-gray-700">
+                        Stalls full
                       </span>
                     )}
 

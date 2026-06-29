@@ -55,7 +55,7 @@ setLoading(false);
     .slice(0, 3);
 
   const featuredEvent =
-    upcomingBhcaEvents.find((event) => event.event_type === "featured") ||
+    upcomingBhcaEvents.find((event) => event.featured === true) ||
     upcomingBhcaEvents[0];
 
   const otherUpcomingBhcaEvents = upcomingBhcaEvents.filter(

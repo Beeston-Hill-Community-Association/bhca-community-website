@@ -15,7 +15,6 @@ export default function FeaturedEvent({ event }) {
             {event.emoji || "🎉"}
           </div>
         )}
-
         <div className="absolute left-5 top-5 rounded-full bg-[#5e17eb] px-4 py-2 text-xs font-black uppercase tracking-wide text-white">
           Featured BHCA Event
         </div>
@@ -41,21 +40,52 @@ export default function FeaturedEvent({ event }) {
           </p>
         )}
 
-        <div className="flex flex-wrap gap-4">
-         
-          <Button
-  to={event.slug ? `/events/${event.slug}` : "/events"}
-  variant="primary"
->
-  View event details
-</Button>
+        {event.has_stall && !event.stalls_fully_booked && (
+          <div className="mb-4">
+            <p className="text-sm text-gray-500">
+              🛍️ <span className="font-bold text-[#171717]">Non-Food Stall — £15</span>
+              &nbsp;|&nbsp;
+              <span className="font-bold text-[#171717]">Food Stall — £40</span>
+            </p>
+          </div>
+        )}
 
+        <div className="flex flex-wrap gap-4">
           <Button
-            href="https://forms.gle/HdPxKtQfXRHJ3AH17"
-            variant="outline"
+            to={event.slug ? `/events/${event.slug}` : "/events"}
+            variant="primary"
           >
-            Volunteer to help
+            View event details
           </Button>
+
+          {event.has_stall && !event.stalls_fully_booked ? (
+            <>
+              <Button
+                href="https://forms.gle/qH3hgTL8HmRTS1do7"
+                variant="orange"
+                className="px-5 py-3 text-sm"
+              >
+                Book a stall
+              </Button>
+              <Button
+                href="https://forms.gle/HdPxKtQfXRHJ3AH17"
+                variant="outline"
+              >
+                Volunteer to help
+              </Button>
+            </>
+          ) : (
+            <Button
+              href="https://forms.gle/HdPxKtQfXRHJ3AH17"
+              variant="outline"
+            >
+              Volunteer to help
+            </Button>
+          )}
+
+          {event.stalls_fully_booked && (
+            <p className="text-sm font-black text-red-600">🚫 Stalls fully booked</p>
+          )}
         </div>
       </div>
     </div>

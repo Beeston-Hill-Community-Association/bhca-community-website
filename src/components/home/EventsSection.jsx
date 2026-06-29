@@ -193,19 +193,60 @@ export default function EventsSection() {
                 </p>
               )}
 
-              <div className="flex flex-wrap gap-4">
-                <Button variant="orange" to="/events">
-                  View all events
-                </Button>
+            <div className="flex flex-wrap gap-4">
+  {featuredEvent.has_stall && !featuredEvent.stalls_fully_booked && (
+    <div className="w-full mb-2">
+      <p className="text-sm text-gray-500">
+        🛍️ <span className="font-bold text-[#171717]">Non-Food Stall — £15</span>
+        &nbsp;|&nbsp;
+        <span className="font-bold text-[#171717]">Food Stall — £40</span>
+      </p>
+    </div>
+  )}
 
-                <Button
-                  href="https://forms.gle/HdPxKtQfXRHJ3AH17"
-                  variant="outline"
-                  className="px-6 py-3"
-                >
-                  Volunteer to help
-                </Button>
-              </div>
+  <Button
+    to={featuredEvent.slug ? `/events/${featuredEvent.slug}` : "/events"}
+    variant="text"
+  >
+    Find out more →
+  </Button>
+
+  {featuredEvent.has_stall && !featuredEvent.stalls_fully_booked ? (
+    <>
+      <Button
+        href="https://forms.gle/qH3hgTL8HmRTS1do7"
+        variant="orange"
+        className="px-5 py-3 text-sm"
+      >
+        Book a stall
+      </Button>
+      <Button
+        href="https://forms.gle/HdPxKtQfXRHJ3AH17"
+        variant="outline"
+        className="px-6 py-3"
+      >
+        Volunteer to help
+      </Button>
+    </>
+  ) : (
+    <>
+      <Button variant="orange" to="/events">
+        View all events
+      </Button>
+      <Button
+        href="https://forms.gle/HdPxKtQfXRHJ3AH17"
+        variant="outline"
+        className="px-6 py-3"
+      >
+        Volunteer to help
+      </Button>
+    </>
+  )}
+
+  {featuredEvent.stalls_fully_booked && (
+    <p className="text-sm font-black text-red-600">🚫 Stalls fully booked</p>
+  )}
+</div>
             </div>
           </div>
         )}

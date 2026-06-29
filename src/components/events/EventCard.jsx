@@ -66,6 +66,16 @@ export default function EventCard({ event }) {
 )}
 
 <div className="flex flex-wrap gap-3">
+  {event.has_stall && !event.stalls_fully_booked && (
+    <div className="w-full mb-1">
+      <p className="text-sm text-gray-500">
+        🛍️ <span className="font-bold text-[#171717]">Non-Food — £15</span>
+        &nbsp;|&nbsp;
+        <span className="font-bold text-[#171717]">Food — £40</span>
+      </p>
+    </div>
+  )}
+
   <Button
     to={event.slug ? `/events/${event.slug}` : "/events"}
     variant="text"
@@ -74,13 +84,26 @@ export default function EventCard({ event }) {
   </Button>
 
   {event.has_stall && !event.stalls_fully_booked && (
-    <Button
-      href="https://forms.gle/qH3hgTL8HmRTS1do7"
-      variant="orange"
-      className="px-5 py-3 text-sm"
-    >
-      Book a stall
-    </Button>
+    <>
+      <Button
+        href="https://forms.gle/qH3hgTL8HmRTS1do7"
+        variant="orange"
+        className="px-5 py-3 text-sm"
+      >
+        Book a stall
+      </Button>
+      <Button
+        href="https://forms.gle/HdPxKtQfXRHJ3AH17"
+        variant="outline"
+        className="px-5 py-3 text-sm"
+      >
+        Volunteer to help
+      </Button>
+    </>
+  )}
+
+  {event.stalls_fully_booked && (
+    <p className="text-sm font-black text-red-600">🚫 Stalls fully booked</p>
   )}
 </div>
 </div>

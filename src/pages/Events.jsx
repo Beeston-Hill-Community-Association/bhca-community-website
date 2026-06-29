@@ -19,20 +19,34 @@ export default function Events() {
       const [bhcaResult, localResult] = await Promise.all([
         supabase.from("events").select("*").order("date", { ascending: true }),
         supabase
-          .from("local_events")
-          .select("*")
-          .eq("status", "published")
-          .order("created_at", { ascending: false }),
+  .from("local_events")
+  .select("*")
+  .eq("status", "published")
+  .or(`event_date.gte.${today},recurrence_type.neq.none`)
+  .order("event_date", { ascending: true }),
       ]);
 
-      if (!bhcaResult.error) setBhcaEvents(bhcaResult.data || []);
-      if (!localResult.error) setLocalEvents(localResult.data || []);
+     if (!bhcaResult.error) {
+  setBhcaEvents(bhcaResult.data || []);
+}
 
-      setLoading(false);
+if (!localResult.error) {
+  const events = localResult.data || [];
+
+  const promotedEvents = events.filter((event) => event.promoted);
+  const normalEvents = events.filter((event) => !event.promoted);
+
+  setLocalEvents([
+    ...promotedEvents,
+    ...normalEvents,
+  ]);
+}
+
+setLoading(false);
     }
 
     fetchEvents();
-  }, []);
+  }, [today]);
 
   const upcomingBhcaEvents = bhcaEvents.filter((event) => event.date >= today);
   const previousBhcaEvents = bhcaEvents

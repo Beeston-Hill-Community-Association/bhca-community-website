@@ -256,20 +256,35 @@ export default function Events() {
           onSelect={(url) => setImageUrl(url)}
         />
 
-        <R2Uploader folder="events" onUpload={(url) => setImageUrl(url)} />
+        <R2Uploader
+          folder="events"
+          accept=".jpg,.jpeg,.png,.webp,.pdf"
+          onUpload={(url) => setImageUrl(url)}
+        />
 
         {imageUrl && (
-          <img
-            src={imageUrl}
-            alt="Event poster preview"
-            className="h-56 w-full max-w-md rounded-xl object-cover"
-          />
+          imageUrl.toLowerCase().endsWith(".pdf") ? (
+            <a
+              href={imageUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex w-fit rounded-full bg-[#5e17eb] px-5 py-3 font-bold text-white"
+            >
+              View uploaded PDF
+            </a>
+          ) : (
+            <img
+              src={imageUrl}
+              alt="Event poster preview"
+              className="h-56 w-full max-w-md rounded-xl object-cover"
+            />
+          )
         )}
 
         <input
           value={imageUrl}
           onChange={(e) => setImageUrl(e.target.value)}
-          placeholder="Image URL"
+          placeholder="Image / PDF URL"
           className="rounded-xl border p-3"
         />
 
@@ -422,11 +437,22 @@ export default function Events() {
             >
               <div className="flex gap-4">
                 {event.image_url ? (
-                  <img
-                    src={event.image_url}
-                    alt={event.title}
-                    className="h-20 w-20 rounded-xl object-cover"
-                  />
+                  event.image_url.toLowerCase().endsWith(".pdf") ? (
+                    <a
+                      href={event.image_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex h-20 w-20 shrink-0 items-center justify-center rounded-xl bg-[#5e17eb] p-2 text-center text-xs font-bold leading-tight text-white"
+                    >
+                      View PDF
+                    </a>
+                  ) : (
+                    <img
+                      src={event.image_url}
+                      alt={event.title}
+                      className="h-20 w-20 rounded-xl object-cover"
+                    />
+                  )
                 ) : (
                   <div className="flex h-20 w-20 items-center justify-center rounded-xl bg-gray-100 text-2xl">
                     {event.emoji || "?"}

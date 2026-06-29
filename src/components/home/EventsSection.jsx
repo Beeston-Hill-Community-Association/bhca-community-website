@@ -77,10 +77,12 @@ export default function EventsSection() {
           .order("date", { ascending: true })
           .limit(6),
 
-        supabase
-          .from("local_events")
-          .select("*")
-          .eq("status", "published"),
+       supabase
+  .from("local_events")
+  .select("*")
+  .eq("status", "published")
+  .or(`event_date.gte.${today},recurrence_type.neq.none`)
+  .order("event_date", { ascending: true }),
       ]);
 
       if (!featuredResult.error && featuredResult.data) {
@@ -95,11 +97,18 @@ export default function EventsSection() {
       }
 
       if (!localResult.error) {
-        const events = localResult.data || [];
-        const randomEvents = shuffleArray(events).slice(0, 4);
+  const events = localResult.data || [];
 
-        setLocalEvents(randomEvents);
-      }
+  const promotedEvents = events.filter((event) => event.promoted);
+  const normalEvents = events.filter((event) => !event.promoted);
+
+  const homepageEvents = [
+    ...promotedEvents,
+    ...shuffleArray(normalEvents),
+  ].slice(0, 4);
+
+  setLocalEvents(homepageEvents);
+}
 
       setLoading(false);
     }

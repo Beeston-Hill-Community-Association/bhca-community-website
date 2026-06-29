@@ -17,6 +17,7 @@ import NotFound from "./pages/NotFound";
 import Search from "./pages/Search";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import CookiePolicy from "./pages/CookiePolicy";
+import EditSubmittedEvent from "./pages/EditSubmittedEvent";
 
 import Login from "./pages/admin/Login";
 import Dashboard from "./pages/admin/Dashboard";
@@ -179,6 +180,7 @@ export default function App() {
     </MainLayout>
   }
 />
+<Route path="/submit-event/edit/:editToken" element={<MainLayout><EditSubmittedEvent /></MainLayout>} />
 
 <Route path="/TestPage" element={<MainLayout><TestPage /></MainLayout>} />
 

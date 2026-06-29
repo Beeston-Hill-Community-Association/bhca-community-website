@@ -104,7 +104,11 @@ export default function SubmitEvent() {
             : null,
       };
 
-      const { error } = await supabase.from("local_events").insert([payload]);
+ const { data: insertedRows, error } = await supabase
+  .from("local_events")
+  .insert([payload])
+  .select("edit_token")
+  .single();
 
 if (error) {
   console.error(error);
@@ -113,16 +117,19 @@ if (error) {
 }
 
 try {
-  await fetch(
-    "https://bhca-contact-api.noisy-darkness-c395.workers.dev/event-submission",
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(payload),
-    }
-  );
+await fetch(
+  "https://bhca-contact-api.noisy-darkness-c395.workers.dev/event-submission",
+  {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      ...payload,
+      edit_token: insertedRows.edit_token,
+      // contact_email is already in payload but being explicit:
+      contact_email: form.contact_email,
+    }),
+  }
+);
 } catch (emailError) {
   console.error("Event notification email failed:", emailError);
 }

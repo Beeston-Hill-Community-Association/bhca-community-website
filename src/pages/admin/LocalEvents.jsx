@@ -16,6 +16,7 @@ const emptyForm = {
   external_url: "",
   flyer_url: "",
   status: "published",
+  promoted: false,
   term_time_only: false,
   recurrence_type: "none",
   repeat_interval: 1,
@@ -27,6 +28,13 @@ const emptyForm = {
 function formatTime(time) {
   if (!time) return "";
   return time.slice(0, 5);
+}
+
+function getEditUrl(editToken) {
+  if (!editToken) return "";
+  return `https://beestonhill.org.uk/submit-event/edit/${encodeURIComponent(
+    editToken
+  )}`;
 }
 
 export default function LocalEvents() {
@@ -71,25 +79,26 @@ export default function LocalEvents() {
     setEditingEvent(event);
     setShowRecurrence(recurrenceType !== "none");
 
-    setForm({
-      title: event.title || "",
-      event_date: event.event_date || "",
-      display_date: event.display_date || "",
-      event_time: event.event_time || "",
-      event_end_time: event.event_end_time || "",
-      description: event.description || "",
-      source: event.source || "",
-      location: event.location || "",
-      external_url: event.external_url || "",
-      flyer_url: event.flyer_url || "",
-      status: event.status || "published",
-      term_time_only: Boolean(event.term_time_only),
-      recurrence_type: recurrenceType,
-      repeat_interval: event.repeat_interval || 1,
-      recurrence_end_date: event.recurrence_end_date || "",
-      week_number: event.week_number || "",
-      weekday: event.weekday || "",
-    });
+   setForm({
+  title: event.title || "",
+  event_date: event.event_date || "",
+  display_date: event.display_date || "",
+  event_time: event.event_time || "",
+  event_end_time: event.event_end_time || "",
+  description: event.description || "",
+  source: event.source || "",
+  location: event.location || "",
+  external_url: event.external_url || "",
+  flyer_url: event.flyer_url || "",
+  status: event.status || "published",
+  promoted: Boolean(event.promoted),
+  term_time_only: Boolean(event.term_time_only),
+  recurrence_type: recurrenceType,
+  repeat_interval: event.repeat_interval || 1,
+  recurrence_end_date: event.recurrence_end_date || "",
+  week_number: event.week_number || "",
+  weekday: event.weekday || "",
+});
 
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
@@ -122,6 +131,7 @@ export default function LocalEvents() {
       external_url: form.external_url || null,
       flyer_url: form.flyer_url || null,
       status: form.status,
+      promoted: form.promoted,
       term_time_only: form.term_time_only,
       recurrence_type: recurrenceType,
       repeat_interval:
@@ -163,6 +173,24 @@ export default function LocalEvents() {
     fetchEvents();
   }
 
+  async function sendEventDecisionEmail(event, status) {
+    if (!event.contact_email) return;
+
+    await fetch(
+      "https://bhca-contact-api.noisy-darkness-c395.workers.dev/event-decision",
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          status,
+          title: event.title,
+          contact_email: event.contact_email,
+          edit_url: getEditUrl(event.edit_token),
+        }),
+      }
+    );
+  }
+
   async function updateStatus(event, status) {
     const { error } = await supabase
       .from("local_events")
@@ -173,6 +201,15 @@ export default function LocalEvents() {
       console.error(error);
       alert(error.message || "Could not update status.");
       return;
+    }
+
+    try {
+      if (status === "published" || status === "rejected") {
+        await sendEventDecisionEmail(event, status);
+      }
+    } catch (emailError) {
+      console.error("Decision email failed:", emailError);
+      alert("Status updated, but the email could not be sent.");
     }
 
     fetchEvents();
@@ -199,10 +236,12 @@ export default function LocalEvents() {
   const publishedEvents = events.filter(
     (event) => event.status === "published"
   );
+  const rejectedEvents = events.filter((event) => event.status === "rejected");
 
   return (
     <AdminLayout>
       <SEO title="Manage Local Events" noindex />
+
       <div className="mb-8">
         <h1 className="mb-2 text-3xl font-black text-[#171717]">
           Local Events
@@ -421,7 +460,19 @@ export default function LocalEvents() {
           <option value="published">Published</option>
           <option value="pending">Pending</option>
           <option value="draft">Draft</option>
+          <option value="rejected">Rejected</option>
         </select>
+        <label className="flex items-center gap-3 rounded-xl border p-3">
+  <input
+    type="checkbox"
+    checked={form.promoted}
+    onChange={(e) => updateField("promoted", e.target.checked)}
+  />
+
+  <span className="font-medium text-[#171717]">
+    Promote this local event on the homepage
+  </span>
+</label>
 
         <div className="flex gap-3">
           <button
@@ -446,7 +497,7 @@ export default function LocalEvents() {
       {loading ? (
         <p>Loading local events...</p>
       ) : (
-        <div className="grid gap-10 lg:grid-cols-2">
+        <div className="grid gap-10 xl:grid-cols-3">
           <EventColumn
             title={`Pending Approval (${pendingEvents.length})`}
             titleClass="text-orange-600"
@@ -460,6 +511,15 @@ export default function LocalEvents() {
             title={`Published Events (${publishedEvents.length})`}
             titleClass="text-green-600"
             events={publishedEvents}
+            onEdit={startEdit}
+            onDelete={handleDelete}
+            onStatusChange={updateStatus}
+          />
+
+          <EventColumn
+            title={`Rejected Events (${rejectedEvents.length})`}
+            titleClass="text-red-600"
+            events={rejectedEvents}
             onEdit={startEdit}
             onDelete={handleDelete}
             onStatusChange={updateStatus}
@@ -565,6 +625,23 @@ function EventColumn({
                   <p className="text-sm text-gray-500">{event.location}</p>
                 )}
 
+                {event.contact_email && (
+                  <p className="text-sm text-gray-500">
+                    Contact: {event.contact_email}
+                  </p>
+                )}
+
+                {event.edit_token && (
+                  <a
+                    href={getEditUrl(event.edit_token)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-2 block text-sm font-black text-[#5e17eb]"
+                  >
+                    Open submitter edit link →
+                  </a>
+                )}
+
                 {event.external_url && (
                   <a
                     href={event.external_url}
@@ -609,6 +686,15 @@ function EventColumn({
                   className="rounded bg-orange-500 px-4 py-2 text-sm font-bold text-white"
                 >
                   Move to pending
+                </button>
+              )}
+
+              {event.status !== "rejected" && (
+                <button
+                  onClick={() => onStatusChange(event, "rejected")}
+                  className="rounded bg-red-700 px-4 py-2 text-sm font-bold text-white"
+                >
+                  Reject
                 </button>
               )}
 

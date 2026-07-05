@@ -18,6 +18,7 @@
     "@emnapi/runtime": "^1.11.1",
     "@supabase/supabase-js": "^2.106.2",
     "lucide-react": "^1.16.0",
+    "pdfjs-dist": "^6.1.200",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
     "react-helmet-async": "^3.0.0",

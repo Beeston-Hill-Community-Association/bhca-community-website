@@ -457,23 +457,13 @@ setSubmitted(true);
               onUpload={(url) => updateField("flyer_url", url)}
             />
 
-            {form.flyer_url &&
-              (form.flyer_url.toLowerCase().endsWith(".pdf") ? (
-                <a
-                  href={form.flyer_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex w-fit rounded-full bg-[#5e17eb] px-5 py-3 font-bold text-white"
-                >
-                  View uploaded PDF
-                </a>
-              ) : (
-                <img
-                  src={form.flyer_url}
-                  alt="Local event flyer preview"
-                  className="h-56 w-full max-w-md rounded-xl object-cover object-top"
-                />
-              ))}
+           {form.flyer_url && (
+  <img
+    src={form.flyer_url}
+    alt="Local event flyer preview"
+    className="h-56 w-full max-w-md rounded-xl object-cover object-top"
+  />
+)}
 
             <div>
               <label className="mb-2 block font-bold text-[#171717]">
